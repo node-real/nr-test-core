@@ -1,13 +1,20 @@
 package checker
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/google/go-cmp/cmp"
 	"github.com/node-real/nr-test-core/src/log"
 	"github.com/tidwall/gjson"
+	"reflect"
 	"strings"
 )
+
+type JsonDiff struct {
+	HasDiff bool
+	Result  string
+}
 
 type Checker struct {
 }
@@ -48,12 +55,12 @@ func (checker *Checker) IsRange(actual, exp string, interval uint64) bool {
 }
 
 // Equals interface
-func (checker *Checker) Equals(actual, exp interface{}) bool {
-	return cmp.Equal(actual, exp)
+func (checker *Checker) Equals(expected, actual interface{}) bool {
+	return cmp.Equal(expected, actual)
 }
 
-// CheckKey just check json key ,not compare value
-func (checker *Checker) CheckKey(actual, exp string) bool {
+// CheckJsonKey just check json key ,not compare value
+func (checker *Checker) CheckJsonKey(exp, actual string) bool {
 	diffs0 := map[string][]interface{}{}
 	diffs1 := map[string][]interface{}{}
 
@@ -81,8 +88,8 @@ func (checker *Checker) CheckKey(actual, exp string) bool {
 	return result
 }
 
-// CheckValue check json key and value
-func (checker *Checker) CheckValue(exp, actual string) bool {
+// CheckJsonValue check json key and value
+func (checker *Checker) CheckJsonValue(exp, actual string) bool {
 	if exp == "" || actual == "" {
 		log.Error("exp or actual if nil")
 		return false
@@ -108,7 +115,7 @@ func (checker *Checker) CheckValue(exp, actual string) bool {
 	return len(diffs0) == 0 && len(diffs1) == 0
 }
 
-func (checker *Checker) CheckKeyValueNoLog(exp, actual string) (bool, map[string][]interface{}, map[string][]interface{}) {
+func (checker *Checker) CheckJsonKeyValueNoLog(exp, actual string) (bool, map[string][]interface{}, map[string][]interface{}) {
 	if exp == "" || actual == "" {
 		log.Error("exp or actual if nil")
 		return false, nil, nil
@@ -183,6 +190,8 @@ func (checker *Checker) DiffJson(jstr0, jstr1 string, diffs map[string][]interfa
 	return diffs
 }
 
+//func (checker *Checker) DiffJson()
+
 func (checker *Checker) DiffList(key, jstr0, jstr1 string, diffs map[string][]interface{}) map[string][]interface{} {
 	json0 := gjson.Parse(jstr0).Array()
 	json1 := gjson.Parse(jstr1).Array()
@@ -223,3 +232,182 @@ func (checker *Checker) DiffList(key, jstr0, jstr1 string, diffs map[string][]in
 //	return true
 //
 //}
+
+func (checker *Checker) JsonStrCompare(jsonStr1 string, jsonStr2 string) (bool, string) {
+	var json1 map[string]interface{}
+	var json2 map[string]interface{}
+	json.Unmarshal([]byte(jsonStr1), &json1)
+	json.Unmarshal([]byte(jsonStr2), &json2)
+	return jsonCompare(json1, json2)
+}
+
+func jsonCompare(left, right map[string]interface{}) (bool, string) {
+	n := -1
+	diff := &JsonDiff{HasDiff: false, Result: ""}
+	jsonDiffDict(left, right, 1, diff)
+	if diff.HasDiff {
+		if n < 0 {
+			return !diff.HasDiff, diff.Result
+		} else {
+			return diff.HasDiff, processContext(diff.Result, n)
+		}
+	}
+	return !diff.HasDiff, ""
+}
+
+func marshal(j interface{}) string {
+	value, _ := json.Marshal(j)
+	return string(value)
+}
+
+func jsonDiffDict(json1, json2 map[string]interface{}, depth int, diff *JsonDiff) {
+	blank := strings.Repeat(" ", (2 * (depth - 1)))
+	longBlank := strings.Repeat(" ", (2 * (depth)))
+	diff.Result = diff.Result + "\n" + blank + "{"
+	for key, value := range json1 {
+		quotedKey := fmt.Sprintf("\"%s\"", key)
+		if _, ok := json2[key]; ok {
+			switch value.(type) {
+			case map[string]interface{}:
+				if _, ok2 := json2[key].(map[string]interface{}); !ok2 {
+					diff.HasDiff = true
+					diff.Result = diff.Result + "\n-" + blank + quotedKey + ": " + marshal(value) + ","
+					diff.Result = diff.Result + "\n+" + blank + quotedKey + ": " + marshal(json2[key])
+				} else {
+					diff.Result = diff.Result + "\n" + longBlank + quotedKey + ": "
+					jsonDiffDict(value.(map[string]interface{}), json2[key].(map[string]interface{}), depth+1, diff)
+				}
+			case []interface{}:
+				diff.Result = diff.Result + "\n" + longBlank + quotedKey + ": "
+				if _, ok2 := json2[key].([]interface{}); !ok2 {
+					diff.HasDiff = true
+					diff.Result = diff.Result + "\n-" + blank + quotedKey + ": " + marshal(value) + ","
+					diff.Result = diff.Result + "\n+" + blank + quotedKey + ": " + marshal(json2[key])
+				} else {
+					jsonDiffList(value.([]interface{}), json2[key].([]interface{}), depth+1, diff)
+				}
+			default:
+				if !reflect.DeepEqual(value, json2[key]) {
+					diff.HasDiff = true
+					diff.Result = diff.Result + "\n-" + blank + quotedKey + ": " + marshal(value) + ","
+					diff.Result = diff.Result + "\n+" + blank + quotedKey + ": " + marshal(json2[key])
+				} else {
+					diff.Result = diff.Result + "\n" + longBlank + quotedKey + ": " + marshal(value)
+				}
+			}
+		} else {
+			diff.HasDiff = true
+			diff.Result = diff.Result + "\n-" + blank + quotedKey + ": " + marshal(value)
+		}
+		diff.Result = diff.Result + ","
+	}
+	for key, value := range json2 {
+		if _, ok := json1[key]; !ok {
+			diff.HasDiff = true
+			diff.Result = diff.Result + "\n+" + blank + "\"" + key + "\"" + ": " + marshal(value) + ","
+		}
+	}
+	diff.Result = diff.Result + "\n" + blank + "}"
+}
+
+func jsonDiffList(json1, json2 []interface{}, depth int, diff *JsonDiff) {
+	blank := strings.Repeat(" ", (2 * (depth - 1)))
+	longBlank := strings.Repeat(" ", (2 * (depth)))
+	diff.Result = diff.Result + "\n" + blank + "["
+	size := len(json1)
+	if size > len(json2) {
+		size = len(json2)
+	}
+	for i := 0; i < size; i++ {
+		switch json1[i].(type) {
+		case map[string]interface{}:
+			if _, ok := json2[i].(map[string]interface{}); ok {
+				jsonDiffDict(json1[i].(map[string]interface{}), json2[i].(map[string]interface{}), depth+1, diff)
+			} else {
+				diff.HasDiff = true
+				diff.Result = diff.Result + "\n-" + blank + marshal(json1[i]) + ","
+				diff.Result = diff.Result + "\n+" + blank + marshal(json2[i])
+			}
+		case []interface{}:
+			if _, ok2 := json2[i].([]interface{}); !ok2 {
+				diff.HasDiff = true
+				diff.Result = diff.Result + "\n-" + blank + marshal(json1[i]) + ","
+				diff.Result = diff.Result + "\n+" + blank + marshal(json2[i])
+			} else {
+				jsonDiffList(json1[i].([]interface{}), json2[i].([]interface{}), depth+1, diff)
+			}
+		default:
+			if !reflect.DeepEqual(json1[i], json2[i]) {
+				diff.HasDiff = true
+				diff.Result = diff.Result + "\n-" + blank + marshal(json1[i]) + ","
+				diff.Result = diff.Result + "\n+" + blank + marshal(json2[i])
+			} else {
+				diff.Result = diff.Result + "\n" + longBlank + marshal(json1[i])
+			}
+		}
+		diff.Result = diff.Result + ","
+	}
+	for i := size; i < len(json1); i++ {
+		diff.HasDiff = true
+		diff.Result = diff.Result + "\n-" + blank + marshal(json1[i])
+		diff.Result = diff.Result + ","
+	}
+	for i := size; i < len(json2); i++ {
+		diff.HasDiff = true
+		diff.Result = diff.Result + "\n+" + blank + marshal(json2[i])
+		diff.Result = diff.Result + ","
+	}
+	diff.Result = diff.Result + "\n" + blank + "]"
+}
+
+func processContext(diff string, n int) string {
+	index1 := strings.Index(diff, "\n-")
+	index2 := strings.Index(diff, "\n+")
+	begin := 0
+	end := 0
+	if index1 >= 0 && index2 >= 0 {
+		if index1 <= index2 {
+			begin = index1
+		} else {
+			begin = index2
+		}
+	} else if index1 >= 0 {
+		begin = index1
+	} else if index2 >= 0 {
+		begin = index2
+	}
+	index1 = strings.LastIndex(diff, "\n-")
+	index2 = strings.LastIndex(diff, "\n+")
+	if index1 >= 0 && index2 >= 0 {
+		if index1 <= index2 {
+			end = index2
+		} else {
+			end = index1
+		}
+	} else if index1 >= 0 {
+		end = index1
+	} else if index2 >= 0 {
+		end = index2
+	}
+	pre := diff[0:begin]
+	post := diff[end:]
+	i := 0
+	l := begin
+	for i < n && l >= 0 {
+		i++
+		l = strings.LastIndex(pre[0:l], "\n")
+	}
+	r := 0
+	j := 0
+	for j <= n && r >= 0 {
+		j++
+		t := strings.Index(post[r:], "\n")
+		if t >= 0 {
+			r = r + t + 1
+		}
+	}
+	if r < 0 {
+		r = len(post)
+	}
+	return pre[l+1:] + diff[begin:end] + post[0:r+1]
+}

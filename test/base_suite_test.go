@@ -1,14 +1,14 @@
 package test
 
 import (
-	"github.com/node-real/nr-test-core/src"
+	"github.com/node-real/nr-test-core/src/core"
 	"github.com/node-real/nr-test-core/src/invokers/http"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
 type BaseSuiteTest struct {
-	src.NRBaseSuite
+	core.NRBaseSuite
 	a string
 }
 
@@ -18,5 +18,5 @@ func TestBaseSuite(t *testing.T) {
 
 func (t *BaseSuiteTest) Test_HttpInvoker() {
 	t.Http.Call(http.Request{})
-	//t.Checker
+
 }

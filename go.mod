@@ -9,6 +9,7 @@ require (
 
 require (
 	github.com/ethereum/go-ethereum v1.10.25
+	github.com/google/go-cmp v0.5.5
 	github.com/gorilla/websocket v1.5.0
-	github.com/tidwall/gjson v1.14.3 // indirect
+	github.com/tidwall/gjson v1.14.3
 )
