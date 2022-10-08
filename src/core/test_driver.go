@@ -7,10 +7,12 @@ import (
 	"github.com/node-real/nr-test-core/src/invokers/rpc"
 	"github.com/node-real/nr-test-core/src/invokers/wss"
 	"github.com/node-real/nr-test-core/src/log"
+	"github.com/node-real/nr-test-core/src/testdata"
 	"sync"
 )
 
 type TestDriver struct {
+	Data     *testdata.DataOperator
 	Http     *http.HttpInvoker
 	Rpc      *rpc.RpcInvoker
 	Wss      *wss.WssInvoker

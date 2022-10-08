@@ -3,27 +3,27 @@ package testdata
 type DataOperator struct {
 }
 
-func (dataOp *DataOperator) getOnlineData(key string) string {
+func (dataOp *DataOperator) GetOnlineData(key string) string {
 	//TODO: Robert
 	return ""
 }
 
-func (dataOp *DataOperator) uploadOnlineData(key string) bool {
+func (dataOp *DataOperator) UploadOnlineData(key string) bool {
 	//TODO: Robert
 	return false
 }
 
-func (dataOp *DataOperator) generateGql() string {
-	//TODO: Robert
-	return ""
-}
-
-func (dataOp *DataOperator) readCsvData() []string {
+func (dataOp *DataOperator) ReadCsvData() []string {
 	//TODO: Robert
 	return nil
 }
 
-func (dataOp *DataOperator) readCustomFileData() map[string]string {
+func (dataOp *DataOperator) ReadCustomFileData() map[string]string {
 	//TODO:Robert
 	return nil
+}
+
+func (dataOp *DataOperator) GenerateGql() string {
+	//TODO: Robert
+	return ""
 }

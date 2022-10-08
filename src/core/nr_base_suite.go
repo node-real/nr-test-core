@@ -10,21 +10,21 @@ type NRBaseSuite struct {
 }
 
 func (baseSuite *NRBaseSuite) SetupTestSuite() {
-	baseSuite.Clients = Driver().Clients
-	baseSuite.Http = Driver().Http
-	baseSuite.Rpc = Driver().Rpc
-	baseSuite.Wss = Driver().Wss
-	baseSuite.Checker = Driver().Checker
-	baseSuite.Clients = Driver().Clients
-	baseSuite.Log = Driver().Log
+	//baseSuite.Clients = Driver().Clients
+	//baseSuite.Http = Driver().Http
+	//baseSuite.Rpc = Driver().Rpc
+	//baseSuite.Wss = Driver().Wss
+	//baseSuite.Checker = Driver().Checker
+	//baseSuite.Clients = Driver().Clients
+	//baseSuite.Log = Driver().Log
 }
 
 func (baseSuite *NRBaseSuite) TearDownTestSuite() {
-
+	//TODO: Robert
 }
 
 func (baseSuite *NRBaseSuite) BeforeTest() {
-
+	//TODO: Robert
 }
 
 func (baseSuite *NRBaseSuite) AfterTest() {
