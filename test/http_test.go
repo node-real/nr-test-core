@@ -16,9 +16,19 @@ func TestHttp(t *testing.T) {
 }
 
 func (t *HttpTest) Test_Http() {
+	headers := map[string]string{
+		"Content-Type": "application/json",
+	}
 	req := http.Request{
-		Path: "",
-		Host: "",
+		"POST",
+		"",
+		"",
+		"",
+		"",
+		headers,
+		nil,
+		nil,
+		"",
 	}
 	t.Log.Info(".......")
 	res, err := t.Http.Call(req)
