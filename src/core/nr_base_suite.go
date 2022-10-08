@@ -16,6 +16,7 @@ func (baseSuite *NRBaseSuite) SetupTestSuite() {
 	baseSuite.Wss = Driver().Wss
 	baseSuite.Checker = Driver().Checker
 	baseSuite.Clients = Driver().Clients
+	baseSuite.Log = Driver().Log
 }
 
 func (baseSuite *NRBaseSuite) TearDownTestSuite() {

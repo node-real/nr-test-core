@@ -15,11 +15,6 @@ type BaseConfig struct {
 	Sequence string
 }
 
-type AptosWrapperClient struct {
-	Account *Account
-	config  *BaseConfig
-}
-
 const (
 	urlCharge                    = "/mint"
 	urlLedgerinformation         = "/v1"
@@ -41,34 +36,37 @@ const (
 	urlTableItemByHandle = "/v1/tables/{table_handle}/items"
 )
 
-// Init Client
-func InitNewClinet(url string, furl string) *AptosWrapperClient {
-	client := new(AptosWrapperClient)
-	config := BaseConfig{
-		Url:  url,
-		Furl: furl,
-	}
-	client.config = &config
-	client.Account = InitAccount()
-	return client
+type AptosWrapperClient struct {
+	Account *Account
+	config  *BaseConfig
 }
 
-func InitSeedClinet(url string, furl string, seed string) *AptosWrapperClient {
-	client := new(AptosWrapperClient)
+func (c *AptosWrapperClient) InitClient(url string, furl string) *AptosWrapperClient {
+	//client := new(AptosWrapperClient)
 	config := BaseConfig{
 		Url:  url,
 		Furl: furl,
 	}
-	client.config = &config
-	client.Account = InitAccountWithSeed(seed)
-	return client
+	c.config = &config
+	c.Account = InitAccount()
+	return c
+}
+
+func (c *AptosWrapperClient) InitSeedClient(url string, furl string, seed string) *AptosWrapperClient {
+	config := BaseConfig{
+		Url:  url,
+		Furl: furl,
+	}
+	c.config = &config
+	c.Account = InitAccountWithSeed(seed)
+	return c
 }
 
 // Returns the latest ledger information.
-func (r *AptosWrapperClient) GetLedgerInfo() (*http.Response, error) {
+func (c *AptosWrapperClient) GetLedgerInfo() (*http.Response, error) {
 	req := new(http.Request)
 	req.Path = urlLedgerinformation
-	req.Host = r.config.Url
+	req.Host = c.config.Url
 	req.Method = "GET"
 	res, err := req.CallSplitUrl()
 	if err != nil {
@@ -78,12 +76,12 @@ func (r *AptosWrapperClient) GetLedgerInfo() (*http.Response, error) {
 }
 
 // Returns the latest account core data resource.
-func (r *AptosWrapperClient) GetAccount() (*http.Response, error) {
+func (c *AptosWrapperClient) GetAccount() (*http.Response, error) {
 
 	req := new(http.Request)
 	req.Path = urlGetAccount
-	req.Host = r.config.Url
-	req.PathParam = map[string]string{"address": "0x" + r.Account.Address()}
+	req.Host = c.config.Url
+	req.PathParam = map[string]string{"address": "0x" + c.Account.Address()}
 
 	req.Method = "GET"
 	res, err := req.CallSplitUrl()
@@ -96,13 +94,13 @@ func (r *AptosWrapperClient) GetAccount() (*http.Response, error) {
 // This API returns account resources for a specific ledger version (AKA transaction version). If not present, the latest version is used
 // version:The version of the latest transaction in the ledger.
 // version default:""/lastversion
-func (r *AptosWrapperClient) GetAccountResources(version string) (*http.Response, error) {
+func (c *AptosWrapperClient) GetAccountResources(version string) (*http.Response, error) {
 
 	req := new(http.Request)
 	req.Path = urlGetAccountResources
-	req.Host = r.config.Url
+	req.Host = c.config.Url
 
-	req.PathParam = map[string]string{"address": r.Account.Address()}
+	req.PathParam = map[string]string{"address": c.Account.Address()}
 	if version != "" {
 		req.QueryParam = map[string]string{"version": version}
 	}
@@ -114,12 +112,12 @@ func (r *AptosWrapperClient) GetAccountResources(version string) (*http.Response
 	return res, nil
 }
 
-func (r *AptosWrapperClient) GetAccountResourcesByType(resourceType string, version string) (*http.Response, error) {
+func (c *AptosWrapperClient) GetAccountResourcesByType(resourceType string, version string) (*http.Response, error) {
 
 	req := new(http.Request)
 	req.Path = urlGetAccountResourcesByType
-	req.Host = r.config.Url
-	req.PathParam = map[string]string{"address": r.Account.Address(), "resource_type": resourceType}
+	req.Host = c.config.Url
+	req.PathParam = map[string]string{"address": c.Account.Address(), "resource_type": resourceType}
 	if version != "" {
 		req.QueryParam = map[string]string{"version": version}
 	}
@@ -131,15 +129,15 @@ func (r *AptosWrapperClient) GetAccountResourcesByType(resourceType string, vers
 	return res, nil
 }
 
-func (r *AptosWrapperClient) GetAccountMoudle(address string, version string) (*http.Response, error) {
+func (c *AptosWrapperClient) GetAccountMoudle(address string, version string) (*http.Response, error) {
 
 	req := new(http.Request)
 	req.Path = urlGetAccountMoudle
-	req.Host = r.config.Url
+	req.Host = c.config.Url
 	if address != "" {
 		req.PathParam = map[string]string{"address": address}
 	} else {
-		req.PathParam = map[string]string{"address": r.Account.Address()}
+		req.PathParam = map[string]string{"address": c.Account.Address()}
 	}
 	if version != "" {
 		req.QueryParam = map[string]string{"version": version}
@@ -152,15 +150,15 @@ func (r *AptosWrapperClient) GetAccountMoudle(address string, version string) (*
 	return res, nil
 }
 
-func (r *AptosWrapperClient) GetAccountMoudlesById(address string, module_name string, version string) (*http.Response, error) {
+func (c *AptosWrapperClient) GetAccountMoudlesById(address string, module_name string, version string) (*http.Response, error) {
 
 	req := new(http.Request)
 	req.Path = urlGetAccountMoudleByid
-	req.Host = r.config.Url
+	req.Host = c.config.Url
 	if address != "" {
 		req.PathParam = map[string]string{"address": address, "module_name": module_name}
 	} else {
-		req.PathParam = map[string]string{"address": r.Account.Address(), "module_name": module_name}
+		req.PathParam = map[string]string{"address": c.Account.Address(), "module_name": module_name}
 	}
 	if version != "" {
 		req.QueryParam = map[string]string{"version": version}
@@ -173,11 +171,11 @@ func (r *AptosWrapperClient) GetAccountMoudlesById(address string, module_name s
 	return res, nil
 }
 
-func (r *AptosWrapperClient) GetTransactions(limit string, start string) (*http.Response, error) {
+func (c *AptosWrapperClient) GetTransactions(limit string, start string) (*http.Response, error) {
 
 	req := new(http.Request)
 	req.Path = urlGetTransactions
-	req.Host = r.config.Url
+	req.Host = c.config.Url
 	req.QueryParam = make(map[string]string)
 	if limit != "" {
 		req.QueryParam["limit"] = limit
@@ -193,12 +191,12 @@ func (r *AptosWrapperClient) GetTransactions(limit string, start string) (*http.
 	return res, nil
 }
 
-func (r *AptosWrapperClient) GetAcccountTransaction(limit string, start string) (*http.Response, error) {
+func (c *AptosWrapperClient) GetAcccountTransaction(limit string, start string) (*http.Response, error) {
 
 	req := new(http.Request)
 	req.Path = urlGetAcccountTransaction
-	req.Host = r.config.Url
-	req.PathParam = map[string]string{"address": r.Account.Address()}
+	req.Host = c.config.Url
+	req.PathParam = map[string]string{"address": c.Account.Address()}
 	req.QueryParam = make(map[string]string)
 	if limit != "" {
 		req.QueryParam["limit"] = limit
@@ -214,11 +212,11 @@ func (r *AptosWrapperClient) GetAcccountTransaction(limit string, start string) 
 	return res, nil
 }
 
-func (r *AptosWrapperClient) GetEvent(enventkey string) (*http.Response, error) {
+func (c *AptosWrapperClient) GetEvent(enventkey string) (*http.Response, error) {
 
 	req := new(http.Request)
 	req.Path = urlGetEvent
-	req.Host = r.config.Url
+	req.Host = c.config.Url
 	req.PathParam = map[string]string{"event_key": enventkey}
 	req.QueryParam = make(map[string]string)
 	req.Method = "GET"
@@ -229,13 +227,13 @@ func (r *AptosWrapperClient) GetEvent(enventkey string) (*http.Response, error) 
 	return res, nil
 }
 
-func (r *AptosWrapperClient) GetEventByHandle(address string, event_handle_struct string, field_name string, limit string, start string) (*http.Response, error) {
+func (c *AptosWrapperClient) GetEventByHandle(address string, event_handle_struct string, field_name string, limit string, start string) (*http.Response, error) {
 
 	req := new(http.Request)
 	req.Path = urlGetEventByHandle
-	req.Host = r.config.Url
+	req.Host = c.config.Url
 	if address == "" {
-		req.PathParam = map[string]string{"address": r.Account.Address(), "event_handle_struct": event_handle_struct, "field_name": field_name}
+		req.PathParam = map[string]string{"address": c.Account.Address(), "event_handle_struct": event_handle_struct, "field_name": field_name}
 	} else {
 		req.PathParam = map[string]string{"address": address, "event_handle_struct": event_handle_struct, "field_name": field_name}
 	}
@@ -255,12 +253,12 @@ func (r *AptosWrapperClient) GetEventByHandle(address string, event_handle_struc
 	return res, nil
 }
 
-func (r *AptosWrapperClient) SubmitTransaction(body *TransactionBody) (*http.Response, error) {
+func (c *AptosWrapperClient) SubmitTransaction(body *TransactionBody) (*http.Response, error) {
 	//todo build body and provider move function
 
 	req := new(http.Request)
 	req.Path = urlSubmitTransaction
-	req.Host = r.config.Url
+	req.Host = c.config.Url
 	bytes, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
@@ -275,10 +273,10 @@ func (r *AptosWrapperClient) SubmitTransaction(body *TransactionBody) (*http.Res
 	return res, nil
 }
 
-func (r *AptosWrapperClient) SignTransaction(body *TransactionSignBody) (*http.Response, error) {
+func (c *AptosWrapperClient) SignTransaction(body *TransactionSignBody) (*http.Response, error) {
 	req := new(http.Request)
 	req.Path = urlSignTransaction
-	req.Host = r.config.Url
+	req.Host = c.config.Url
 	bytes, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
@@ -294,11 +292,11 @@ func (r *AptosWrapperClient) SignTransaction(body *TransactionSignBody) (*http.R
 	return res, nil
 }
 
-func (r *AptosWrapperClient) GetTransactionsByHash(hashorversion string, limit string, start string) (*http.Response, error) {
+func (c *AptosWrapperClient) GetTransactionsByHash(hashorversion string, limit string, start string) (*http.Response, error) {
 
 	req := new(http.Request)
 	req.Path = urlGetTransactionsByHash
-	req.Host = r.config.Url
+	req.Host = c.config.Url
 	req.PathParam = map[string]string{"txn_hash_or_version": hashorversion}
 	req.QueryParam = make(map[string]string)
 	if limit != "" {
@@ -315,12 +313,12 @@ func (r *AptosWrapperClient) GetTransactionsByHash(hashorversion string, limit s
 	return res, nil
 }
 
-func (r *AptosWrapperClient) Charge(amount string) (*http.Response, error) {
+func (c *AptosWrapperClient) Charge(amount string) (*http.Response, error) {
 
 	req := new(http.Request)
 	req.Path = urlCharge
-	req.Host = r.config.Furl
-	req.QueryParam = map[string]string{"amount": amount, "address": r.Account.Address()}
+	req.Host = c.config.Furl
+	req.QueryParam = map[string]string{"amount": amount, "address": c.Account.Address()}
 	req.Method = "POST"
 	res, err := req.CallSplitUrl()
 	if err != nil {
@@ -329,21 +327,21 @@ func (r *AptosWrapperClient) Charge(amount string) (*http.Response, error) {
 	return res, nil
 }
 
-func setVersion(version string) {
-	if version != "" {
-
-	}
-
-}
+//func setVersion(version string) {
+//	if version != "" {
+//
+//	}
+//
+//}
 
 //---------------- test tool line-------------------
 
 // provider information for test
 // return  TransactHandle
-func (r *AptosWrapperClient) GetTransactionsInfo(limit string, start string) string {
+func (c *AptosWrapperClient) GetTransactionsInfo(limit string, start string) string {
 	req := new(http.Request)
 	req.Path = urlGetTransactions
-	req.Host = r.config.Url
+	req.Host = c.config.Url
 	req.QueryParam = make(map[string]string)
 	if limit != "" {
 		req.QueryParam["limit"] = limit
@@ -360,9 +358,9 @@ func (r *AptosWrapperClient) GetTransactionsInfo(limit string, start string) str
 	return hash
 }
 
-func (r *AptosWrapperClient) AccoutSequence(new bool) string {
+func (c *AptosWrapperClient) AccoutSequence(new bool) string {
 	if new {
-		res, err := r.GetAccount()
+		res, err := c.GetAccount()
 		if err != nil {
 			return "err"
 		}
@@ -370,64 +368,64 @@ func (r *AptosWrapperClient) AccoutSequence(new bool) string {
 		if number == "err" {
 			return "err"
 		}
-		r.config.Sequence = number
+		c.config.Sequence = number
 		return number
 	} else {
-		return r.config.Sequence
+		return c.config.Sequence
 	}
 }
 
-func (r *AptosWrapperClient) Payload(reciver string, amount string) (*http.Response, error) {
-	number := r.AccoutSequence(true)
+func (c *AptosWrapperClient) Payload(reciver string, amount string) (*http.Response, error) {
+	number := c.AccoutSequence(true)
 
 	payload := buildPayload(reciver, amount)
-	signbody := buildTransignBody(r.Account, payload, number)
-	sginres, err := r.SignTransaction(signbody)
+	signbody := buildTransignBody(c.Account, payload, number)
+	sginres, err := c.SignTransaction(signbody)
 	if err != nil {
 		return nil, err
 	}
-	transbody := buildTranBodyFromSign(r.Account, signbody, sginres)
-	res, err := r.SubmitTransaction(transbody)
+	transbody := buildTranBodyFromSign(c.Account, signbody, sginres)
+	res, err := c.SubmitTransaction(transbody)
 	return res, err
 
 }
 
-func (r *AptosWrapperClient) PayloadMoudle(path string) (*http.Response, error) {
-	number := r.AccoutSequence(true)
+func (c *AptosWrapperClient) PayloadMoudle(path string) (*http.Response, error) {
+	number := c.AccoutSequence(true)
 
 	payload := buildModulePayload(path)
-	signbody := buildTransignBody(r.Account, payload, number)
-	sginres, err := r.SignTransaction(signbody)
+	signbody := buildTransignBody(c.Account, payload, number)
+	sginres, err := c.SignTransaction(signbody)
 	if err != nil {
 		return nil, err
 	}
-	transbody := buildTranBodyFromSign(r.Account, signbody, sginres)
-	res, err := r.SubmitTransaction(transbody)
+	transbody := buildTranBodyFromSign(c.Account, signbody, sginres)
+	res, err := c.SubmitTransaction(transbody)
 	return res, err
 
 }
 
-func (r *AptosWrapperClient) CraeteAccount() (*http.Response, error) {
+func (c *AptosWrapperClient) CraeteAccount() (*http.Response, error) {
 	number := "0"
-	payload := buildCreateAccountPayload(r.Account.address)
-	signbody := buildTransignBody(r.Account, payload, number)
-	sginres, err := r.SignTransaction(signbody)
+	payload := buildCreateAccountPayload(c.Account.address)
+	signbody := buildTransignBody(c.Account, payload, number)
+	sginres, err := c.SignTransaction(signbody)
 	if err != nil {
 		return nil, err
 	}
-	transbody := buildTranBodyFromSign(r.Account, signbody, sginres)
-	res, err := r.SubmitTransaction(transbody)
+	transbody := buildTranBodyFromSign(c.Account, signbody, sginres)
+	res, err := c.SubmitTransaction(transbody)
 	return res, err
 
 }
 
-func (r *AptosWrapperClient) WaitForAccount() bool {
+func (c *AptosWrapperClient) WaitForAccount() bool {
 
-	res, err := r.GetAccount()
+	res, err := c.GetAccount()
 
 	for i := 0; i < 10; i++ {
 		time.Sleep(time.Duration(1) * time.Second)
-		res, err = r.GetAccount()
+		res, err = c.GetAccount()
 		if err == nil && res.Code != 200 {
 			break
 		}
@@ -438,13 +436,13 @@ func (r *AptosWrapperClient) WaitForAccount() bool {
 	return false
 }
 
-func (r *AptosWrapperClient) WaitForTransaction(hash string) bool {
+func (c *AptosWrapperClient) WaitForTransaction(hash string) bool {
 
-	res, err := r.GetTransactionsByHash(hash, "", "")
+	res, err := c.GetTransactionsByHash(hash, "", "")
 
 	for i := 0; err == nil && http.GetBodyParam(res, "$.status") != "pending_transaction" && i < 10; i++ {
 		time.Sleep(time.Duration(1) * time.Second)
-		res, err = r.GetTransactionsByHash(hash, "", "")
+		res, err = c.GetTransactionsByHash(hash, "", "")
 	}
 	if http.GetBodyParam(res, "$.status") != "pending_transaction" {
 		return true
@@ -452,10 +450,10 @@ func (r *AptosWrapperClient) WaitForTransaction(hash string) bool {
 	return false
 }
 
-func (r *AptosWrapperClient) ClientAddress() string {
-	return r.Account.Address()
+func (c *AptosWrapperClient) ClientAddress() string {
+	return c.Account.Address()
 }
 
-func (r *AptosWrapperClient) ClientSeed() string {
-	return r.Account.GetSeed()
+func (c *AptosWrapperClient) ClientSeed() string {
+	return c.Account.GetSeed()
 }
