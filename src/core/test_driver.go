@@ -11,12 +11,13 @@ import (
 )
 
 type TestDriver struct {
-	Http    *http.HttpInvoker
-	Rpc     *rpc.RpcInvoker
-	Wss     *wss.WssInvoker
-	Checker *checker.Checker
-	Clients *clients.ClientWrappers
-	Log     *log.Logger
+	Http     *http.HttpInvoker
+	Rpc      *rpc.RpcInvoker
+	Wss      *wss.WssInvoker
+	Checker  *checker.Checker
+	Clients  *clients.ClientWrappers
+	Log      *log.Logger
+	CurrTask *string
 }
 
 var (
