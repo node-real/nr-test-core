@@ -2,7 +2,6 @@ package core
 
 import (
 	"github.com/node-real/nr-test-core/src/checker"
-	"github.com/node-real/nr-test-core/src/clients"
 	"github.com/node-real/nr-test-core/src/invokers/http"
 	"github.com/node-real/nr-test-core/src/invokers/rpc"
 	"github.com/node-real/nr-test-core/src/invokers/wss"
@@ -17,9 +16,8 @@ type TestDriver struct {
 	Rpc      *rpc.RpcInvoker
 	Wss      *wss.WssInvoker
 	Checker  *checker.Checker
-	Clients  *clients.ClientWrappers
 	Log      *log.Logger
-	CurrTask *string
+	CurrTask string
 }
 
 var (
@@ -30,6 +28,13 @@ var (
 func Driver() *TestDriver {
 	once.Do(func() {
 		driver = &TestDriver{}
+		driver.Data = &testdata.DataOperator{}
+		driver.Http = &http.HttpInvoker{}
+		driver.Rpc = &rpc.RpcInvoker{}
+		driver.Wss = &wss.WssInvoker{}
+		driver.Checker = &checker.Checker{}
+		driver.Log = &log.Logger{}
+		//driver.CurrTask = "asd"
 	})
 	return driver
 }
