@@ -1,4 +1,4 @@
-package core
+package testdriver
 
 import (
 	"github.com/node-real/nr-test-core/src/checker"

@@ -1,22 +1,42 @@
 package test
 
 import (
-	"github.com/node-real/nr-test-core/src/core"
-	"github.com/node-real/nr-test-core/src/invokers/http"
-	"github.com/stretchr/testify/suite"
+	"fmt"
+	"github.com/node-real/nr-test-core/src/core/nrsuite"
 	"testing"
 )
 
+// Tags:: level:p0 net:eth,abc
 type BaseSuiteTest struct {
-	core.NRBaseSuite
-	a string
+	nrsuite.NRBaseSuite
 }
 
-func TestBaseSuite(t *testing.T) {
-	suite.Run(t, new(BaseSuiteTest))
+func TestSuite(t *testing.T) {
+	nrsuite.Run(t, new(BaseSuiteTest))
 }
 
-func (t *BaseSuiteTest) Test_HttpInvoker() {
-	t.Http.Call(http.Request{})
+// Tags:: level:p0
+func (t *BaseSuiteTest) Test_1() {
+	fmt.Println(t.RunningConfig.TestParams["NoderealRpcUrl"])
+	fmt.Println("*****1")
+}
 
+// Tags:: level:P1
+func (t *BaseSuiteTest) Test_2() {
+	fmt.Println("*****2")
+}
+
+// Tags:: level:p2 net:abc
+func (t *BaseSuiteTest) Test_3() {
+	fmt.Println("*****2")
+
+}
+
+// Tags:: level:p3 net:abc
+func (t *BaseSuiteTest) Test_4() {
+	fmt.Println("*****2")
+}
+
+func (t *BaseSuiteTest) Test_5() {
+	fmt.Println("*****2")
 }
