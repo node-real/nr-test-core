@@ -23,7 +23,7 @@ func parseRunningConfig() core.RunningConfig {
 		} else {
 			r := strings.Split(arg, ":")
 			if len(r) == 2 {
-				rConfig.TestParams[r[0]] = r[1]
+				rConfig.TestFilters[r[0]] = r[1]
 			}
 		}
 	}
