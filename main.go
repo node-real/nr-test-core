@@ -1,4 +1,4 @@
-package test
+package main
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ func GetFoo() {
 	fmt.Println(test)
 }
 
-func Main() {
+func main() {
 	fset := token.NewFileSet() // positions are relative to fset
 	d, err := parser.ParseDir(fset, "./", nil, parser.ParseComments)
 	if err != nil {

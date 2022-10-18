@@ -1,137 +1,154 @@
-package testsuite
+package nrsuite
 
 import (
-	"github.com/node-real/nr-test-core/src/core/testdriver"
+	"flag"
+	"github.com/node-real/nr-test-core/src/checker"
+	"github.com/node-real/nr-test-core/src/core"
+	"github.com/node-real/nr-test-core/src/core/nrdriver"
 	"github.com/stretchr/testify/suite"
+	"reflect"
+	"strings"
+	"sync"
 	"testing"
 )
 
-func Run(t *testing.T, suite NRBaseSuite) {
-
-}
+var (
+	once   sync.Once
+	config *core.RunningConfig
+)
 
 type NRBaseSuite struct {
 	suite.Suite
-	testdriver.TestDriver
+	nrdriver.TestDriver
 }
 
-func (baseSuite *NRBaseSuite) SetupTestSuite() {
+func (baseSuite *NRBaseSuite) SetupSuite() {
+	initTest(baseSuite)
 }
 
 func (baseSuite *NRBaseSuite) TearDownTestSuite() {
-	//TODO: Robert
 }
 
 func (baseSuite *NRBaseSuite) BeforeTest() {
-	//TODO: Robert
 }
 
 func (baseSuite *NRBaseSuite) caseFilter() {
-
 }
 
-//// Run takes a testing suite and runs all of the tests attached
-//// to it.
-//func Run(t *testing.T, suite TestingSuite) {
-//	defer recoverAndFailOnPanic(t)
-//
-//	suite.SetT(t)
-//
-//	var suiteSetupDone bool
-//
-//	var stats *SuiteInformation
-//	if _, ok := suite.(WithStats); ok {
-//		stats = newSuiteInformation()
+func Run(t *testing.T, testSuite suite.TestingSuite) {
+	//nrBaseSuite := testSuite.(NRBaseSuite)
+	if !flag.Parsed() {
+		flag.Parsed()
+	}
+
+	once.Do(func() {
+		configV := parseRunningConfig()
+		config = &configV
+	})
+
+	argMap := config.TestFilters
+
+	tagInfos := parseTestTagInfos()
+	currSuiteName := reflect.TypeOf(testSuite).Elem().Name()
+	var skipCases []string
+	//var currSuiteTags string
+	var currSuiteInfo TagInfo
+	isSkipSuite := false
+	for _, tagInfo := range tagInfos {
+		if currSuiteName != tagInfo.SuiteName {
+			break
+		}
+		if tagInfo.IsSuite {
+			currSuiteInfo = tagInfo
+			//Suite Skip Check
+			if tagInfo.TagMap["skip"] == "true" {
+				isSkipSuite = true
+				break
+			} else {
+				for k, v := range argMap {
+					targetTagStr := tagInfo.TagMap[k]
+					if targetTagStr == "" {
+						isSkipSuite = true
+						break
+					} else {
+						tagValues := strings.Split(targetTagStr, ",")
+						argValues := strings.Split(v, ",")
+						checker := new(checker.Checker)
+						isContainOneV := false
+						for _, aValue := range argValues {
+							if checker.IsContainsInArray(tagValues, aValue) {
+								isContainOneV = true
+								break
+							}
+						}
+						if !isContainOneV {
+							isSkipSuite = true
+						}
+					}
+				}
+			}
+		} else {
+			//Method Skip Check
+			if tagInfo.TagMap["skip"] == "true" {
+				skipCases = append(skipCases, tagInfo.MethodName)
+			} else {
+				for k, v := range argMap {
+					targetTagStr := tagInfo.TagMap[k]
+					if targetTagStr == "" {
+						// if curr tag is null, will use the suite tag, so break
+						break
+					} else {
+						tagValues := strings.Split(targetTagStr, ",")
+						argValues := strings.Split(v, ",")
+						checker := new(checker.Checker)
+						isContainOneV := false
+						for _, aValue := range argValues {
+							if checker.IsContainsInArray(tagValues, aValue) {
+								isContainOneV = true
+								break
+							}
+						}
+						if !isContainOneV {
+							skipCases = append(skipCases, tagInfo.MethodName)
+						}
+					}
+				}
+			}
+		}
+	}
+	if isSkipSuite {
+		t.Skipf("Current Suite Tags:%s", currSuiteInfo.TagStr) // skip current test suite
+	}
+	suite.Run(t, testSuite, skipCases)
+}
+
+func initTest(baseSuite *NRBaseSuite) {
+	baseSuite.TestDriver = nrdriver.Driver()
+	baseSuite.RunningConfig = config
+}
+
+//func getSkipCases(tagInfos []TagInfo) []string {
+//	var skipCases []string
+//	for _, tagInfo := range tagInfos {
+//		if tagInfo.TagMap["skip"] == "true" && tagInfo.MethodName != "" {
+//			skipCases = append(skipCases, tagInfo.MethodName)
+//		}
 //	}
-//
-//	tests := []testing.InternalTest{}
-//	methodFinder := reflect.TypeOf(suite)
-//	suiteName := methodFinder.Elem().Name()
-//
-//	for i := 0; i < methodFinder.NumMethod(); i++ {
-//		method := methodFinder.Method(i)
-//
-//		ok, err := methodFilter(method.Name)
-//		if err != nil {
-//			fmt.Fprintf(os.Stderr, "testify: invalid regexp for -m: %s\n", err)
-//			os.Exit(1)
-//		}
-//
-//		if !ok {
-//			continue
-//		}
-//
-//		if !suiteSetupDone {
-//			if stats != nil {
-//				stats.Start = time.Now()
-//			}
-//
-//			if setupAllSuite, ok := suite.(SetupAllSuite); ok {
-//				setupAllSuite.SetupSuite()
-//			}
-//
-//			suiteSetupDone = true
-//		}
-//
-//		test := testing.InternalTest{
-//			Name: method.Name,
-//			F: func(t *testing.T) {
-//				parentT := suite.T()
-//				suite.SetT(t)
-//				defer recoverAndFailOnPanic(t)
-//				defer func() {
-//					r := recover()
-//
-//					if stats != nil {
-//						passed := !t.Failed() && r == nil
-//						stats.end(method.Name, passed)
-//					}
-//
-//					if afterTestSuite, ok := suite.(AfterTest); ok {
-//						afterTestSuite.AfterTest(suiteName, method.Name)
-//					}
-//
-//					if tearDownTestSuite, ok := suite.(TearDownTestSuite); ok {
-//						tearDownTestSuite.TearDownTest()
-//					}
-//
-//					suite.SetT(parentT)
-//					failOnPanic(t, r)
-//				}()
-//
-//				if setupTestSuite, ok := suite.(SetupTestSuite); ok {
-//					setupTestSuite.SetupTest()
-//				}
-//				if beforeTestSuite, ok := suite.(BeforeTest); ok {
-//					beforeTestSuite.BeforeTest(methodFinder.Elem().Name(), method.Name)
-//				}
-//
-//				if stats != nil {
-//					stats.start(method.Name)
-//				}
-//
-//				method.Func.Call([]reflect.Value{reflect.ValueOf(suite)})
-//			},
-//		}
-//		tests = append(tests, test)
-//	}
-//	if suiteSetupDone {
-//		defer func() {
-//			if tearDownAllSuite, ok := suite.(TearDownAllSuite); ok {
-//				tearDownAllSuite.TearDownSuite()
-//			}
-//
-//			if suiteWithStats, measureStats := suite.(WithStats); measureStats {
-//				stats.End = time.Now()
-//				suiteWithStats.HandleStats(suiteName, stats)
-//			}
-//		}()
-//	}
-//
-//	runTests(t, tests)
+//	return skipCases
 //}
 
-func (baseSuite *NRBaseSuite) AfterTest() {
-	// 收集测试日志
-	// 收集测试报告
-}
+//reflect.ValueOf(testSuite).FieldByName("TagInfos").(tagInfos)
+//suiteValue := reflect.TypeOf(testSuite).Elem()
+//baseSuite, r := suiteValue.FieldByName("NRBaseSuite")
+//var skipCases []string
+//if r {
+//	runningTag := baseSuite.Tag
+//	if runningTag.Get("skipSuite") == "true" {
+//		t.Skipf("Skip Suite")
+//	}
+//	skipCaseStr := runningTag.Get("skipCase")
+//	if runningTag.Get("skipCase") != "" {
+//		skipCases = strings.Split(skipCaseStr, ",")
+//	}
+//}
+//skipCases := getSkipCases(tagInfos)

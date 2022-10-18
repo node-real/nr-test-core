@@ -1,1 +1,17 @@
-package test
+
+#  CommonConfig:
+#    - retryCount: 4
+#    - parallelCount: 10
+TestFilters:
+  - net : eth
+  - level : p0
+TestParams:
+  - host: www.xxxx.com
+  - NoderealRpcUrl: https://eth-rinkeby.nodereal.io/v1/60bb5a37028747c498719477a555c6de
+  - NoderealWSUrl: wss://eth-rinkeby.nodereal.io/ws/v1/60bb5a37028747c498719477a555c6de
+  - ExpectRpcUrl: https://eth-rinkeby.alchemyapi.io/v2/nabEb_glcQDMoAR-BUN3teFF4LAJRgf7
+  - NoderealArchiveRpcUrl:
+  - NoderealArchiveWSUrl:
+  - ExpectArchiveRpcUrl:
+  - WBNB: xxxxx
+  - Router: xxxxx
