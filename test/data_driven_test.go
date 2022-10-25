@@ -19,7 +19,7 @@ func TestDataSuite(t *testing.T) {
 
 func (t *DataSuiteTest) SetupSuite() {
 	t.TestData = map[string][]string{}
-	t.TestData["Tokens"] = t.DataOperator.ReadFileLines("./data/token.log")
+
 	t.TestData["EthTop200"] = []string{
 		"12113241234123",
 		"abcasdfasdfasd",
@@ -29,6 +29,7 @@ func (t *DataSuiteTest) SetupSuite() {
 		"13241234123412",
 		"134123412342314",
 	}
+	t.TestData["Tokens"] = t.DataOperator.ReadFileLines("./data/token.log")
 }
 
 // Tags:: $RunDataKey:EthTop200 $ParallelCount:10
@@ -39,7 +40,7 @@ func (t *DataSuiteTest) Test_1(data string, tt *testing.T) {
 }
 
 // Tags:: $RunDataKey:Tokens $ParallelCount:300
-func (t *DataSuiteTest) Test_0(data string, tt *testing.T) {
+func (t *DataSuiteTest) Test_2(data string, tt *testing.T) {
 	tt.Log("test data:", data)
 	time.Sleep(time.Millisecond * 100)
 	if strings.HasPrefix(data, "9") {
