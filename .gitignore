@@ -14,3 +14,8 @@
 ## Dependency directories (remove the comment below to include it)
 ## vendor/
 .idea/
+*.html
+*.log
+test/data
+*.DS_store
+
