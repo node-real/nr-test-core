@@ -1,8 +1,10 @@
 package test
 
 import (
+	"fmt"
 	"github.com/node-real/nr-test-core/src/core/nrsuite"
 	"github.com/node-real/nr-test-core/src/utils"
+	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
 	"time"
@@ -35,8 +37,9 @@ func (t *DataSuiteTest) SetupSuite() {
 // Tags:: $RunDataKey:EthTop200 $ParallelCount:10
 func (t *DataSuiteTest) Test_1(data string, tt *testing.T) {
 	tt.Log("test data:", data)
+	fmt.Println()
 	time.Sleep(time.Second * 10)
-	//assert.True(tt, false, "*****")
+	assert.True(tt, true, "*****")
 }
 
 // Tags:: $RunDataKey:Tokens $ParallelCount:300
