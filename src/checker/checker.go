@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/google/go-cmp/cmp"
+	"github.com/node-real/nr-test-core/src/invokers/http"
 	"github.com/node-real/nr-test-core/src/log"
 	"github.com/tidwall/gjson"
 	"reflect"
@@ -133,8 +134,8 @@ func (checker *Checker) CheckJsonKeyValueNoLog(exp, actual string) (bool, map[st
 	return len(diffs0) == 0 && len(diffs1) == 0, diffs0, diffs1
 }
 
-// KeyValueOpt check json key and value ,filter some key
-func (checker *Checker) KeyValueOpt(exp, actual string, opt []string) bool {
+// CheckJsonKeyValueOpt check json key and value ,filter some key
+func (checker *Checker) CheckJsonKeyValueOpt(exp, actual string, opt []string) bool {
 	diffs := map[string][]interface{}{}
 	diffs1 := map[string][]interface{}{}
 	json0 := gjson.Parse(exp)
@@ -190,7 +191,9 @@ func (checker *Checker) DiffJson(jstr0, jstr1 string, diffs map[string][]interfa
 	return diffs
 }
 
-//func (checker *Checker) DiffJson()
+func (checker *Checker) DiffJsonReturnDiffStr() {
+
+}
 
 func (checker *Checker) DiffList(key, jstr0, jstr1 string, diffs map[string][]interface{}) map[string][]interface{} {
 	json0 := gjson.Parse(jstr0).Array()
@@ -215,6 +218,11 @@ func (checker *Checker) DiffList(key, jstr0, jstr1 string, diffs map[string][]in
 	return diffs
 }
 
+func (checker *Checker) CheckResponse(response http.Response) bool {
+	//TODO:
+	return false
+}
+
 //func GroupContain(res []*httpUtil.Response, except ...string) bool {
 //	for _, e := range except {
 //		result := false
@@ -233,7 +241,7 @@ func (checker *Checker) DiffList(key, jstr0, jstr1 string, diffs map[string][]in
 //
 //}
 
-func (checker *Checker) JsonStrCompare(jsonStr1 string, jsonStr2 string) (bool, string) {
+func (checker *Checker) DiffJsonWithDifStr(jsonStr1 string, jsonStr2 string) (bool, string) {
 	var json1 map[string]interface{}
 	var json2 map[string]interface{}
 	json.Unmarshal([]byte(jsonStr1), &json1)

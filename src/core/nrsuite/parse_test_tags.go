@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/node-real/nr-test-core/src/utils"
+	"github.com/stretchr/testify/suite"
 	"go/parser"
 	"go/token"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 )
@@ -19,6 +21,7 @@ type TagInfo struct {
 	SuiteName  string
 	MethodName string
 	IsSuite    bool
+	IsSkip     bool
 }
 
 func parseTestTagInfos() []TagInfo {
@@ -81,7 +84,10 @@ func parseTagInfo(tagInfos []TagInfo, filePath string) []TagInfo {
 					currSuite = suiteName
 					newTagInfos = append(newTagInfos, tagInfo)
 				} else if strings.HasPrefix(testNameLine, "func") {
-					methodName := utils.GetStringInBetween(testNameLine, ")", "()")
+					compileRegex := regexp.MustCompile("\\)(.*?)\\(")
+					matchArr := compileRegex.FindStringSubmatch(testNameLine)
+					methodName := matchArr[len(matchArr)-1]
+					//methodName := utils.GetStringInBetween(testNameLine, ")", "(")
 					methodName = strings.Trim(methodName, " ")
 					if strings.HasPrefix(methodName, "Test") {
 						tagInfo.MethodName = methodName
@@ -109,4 +115,27 @@ func parseTagStr(tagStr string) map[string]string {
 		}
 	}
 	return tagMap
+}
+
+func parseTagToCaseInfo(tag TagInfo) *suite.CaseInfo {
+	tagMap := tag.TagMap
+	if tagMap == nil || len(tagMap) == 0 || tag.IsSuite {
+		return nil
+	}
+	caseInfo := suite.CaseInfo{}
+	caseInfo.MethodName = tag.MethodName
+	caseInfo.SuiteName = tag.SuiteName
+	caseInfo.TagStr = tag.TagStr
+	//caseInfo.IsSkip = tag.
+	caseInfo.DataKey = tagMap["$RunDataKey"]
+	parallelCount := tagMap["$ParallelCount"]
+	if parallelCount != "" {
+		count, err := utils.ConvertStrToInt(parallelCount)
+		if err != nil {
+			caseInfo.ParallelCount = 1
+		} else {
+			caseInfo.ParallelCount = count
+		}
+	}
+	return &caseInfo
 }

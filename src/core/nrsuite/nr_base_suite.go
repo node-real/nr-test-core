@@ -2,6 +2,7 @@ package nrsuite
 
 import (
 	"flag"
+	"fmt"
 	"github.com/node-real/nr-test-core/src/checker"
 	"github.com/node-real/nr-test-core/src/core"
 	"github.com/node-real/nr-test-core/src/core/nrdriver"
@@ -20,6 +21,9 @@ var (
 type NRBaseSuite struct {
 	suite.Suite
 	nrdriver.TestDriver
+	TestData   map[string][]string
+	ResultData map[string][]string
+	mu         sync.Mutex
 }
 
 func (baseSuite *NRBaseSuite) SetupSuite() {
@@ -32,7 +36,16 @@ func (baseSuite *NRBaseSuite) TearDownTestSuite() {
 func (baseSuite *NRBaseSuite) BeforeTest() {
 }
 
-func (baseSuite *NRBaseSuite) caseFilter() {
+func (baseSuite *NRBaseSuite) AfterTest(suiteName, testName string) {
+}
+
+func (baseSuite *NRBaseSuite) AppendResultData(key string, valueItem string) {
+	baseSuite.mu.Lock()
+	if baseSuite.ResultData == nil {
+		baseSuite.ResultData = map[string][]string{}
+	}
+	baseSuite.ResultData[key] = append(baseSuite.ResultData[key], valueItem)
+	baseSuite.mu.Unlock()
 }
 
 func Run(t *testing.T, testSuite suite.TestingSuite) {
@@ -50,7 +63,7 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 
 	tagInfos := parseTestTagInfos()
 	currSuiteName := reflect.TypeOf(testSuite).Elem().Name()
-	var skipCases []string
+	//var skipCases []string
 	//var currSuiteTags string
 	var currSuiteInfo TagInfo
 	isSkipSuite := false
@@ -90,7 +103,8 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 		} else {
 			//Method Skip Check
 			if tagInfo.TagMap["skip"] == "true" {
-				skipCases = append(skipCases, tagInfo.MethodName)
+				//skipCases = append(skipCases, tagInfo.MethodName)
+				tagInfo.IsSkip = true
 			} else {
 				for k, v := range argMap {
 					targetTagStr := tagInfo.TagMap[k]
@@ -109,17 +123,27 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 							}
 						}
 						if !isContainOneV {
-							skipCases = append(skipCases, tagInfo.MethodName)
+							//skipCases = append(skipCases, tagInfo.MethodName)
+							tagInfo.IsSkip = false
 						}
 					}
 				}
 			}
 		}
 	}
+
 	if isSkipSuite {
 		t.Skipf("Current Suite Tags:%s", currSuiteInfo.TagStr) // skip current test suite
 	}
-	suite.Run(t, testSuite, skipCases)
+	var caseInfos []suite.CaseInfo
+	for _, tag := range tagInfos {
+		caseInfo := parseTagToCaseInfo(tag)
+		if caseInfo != nil {
+			caseInfos = append(caseInfos, *caseInfo)
+		}
+	}
+	fmt.Println("caseInfos: ", caseInfos)
+	suite.Run(t, testSuite, caseInfos)
 }
 
 func initTest(baseSuite *NRBaseSuite) {

@@ -13,7 +13,7 @@ import (
 
 type TestDriver struct {
 	RunningConfig *core.RunningConfig
-	Data          *testdata.DataOperator
+	DataOperator  *testdata.DataOperator
 	Http          *http.HttpInvoker
 	Rpc           *rpc.RpcInvoker
 	Wss           *wss.WssInvoker
@@ -30,7 +30,7 @@ var (
 func Driver() TestDriver {
 	once.Do(func() {
 		driver = TestDriver{}
-		driver.Data = &testdata.DataOperator{}
+		driver.DataOperator = &testdata.DataOperator{}
 		driver.Http = &http.HttpInvoker{}
 		driver.Rpc = &rpc.RpcInvoker{}
 		driver.Wss = &wss.WssInvoker{}
