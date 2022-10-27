@@ -24,6 +24,8 @@ type TagInfo struct {
 	IsSkip     bool
 }
 
+var util = utils.Utils{}
+
 func parseTestTagInfos() []TagInfo {
 	var filePaths []string
 	for m := 0; m < 5; m++ {
@@ -78,7 +80,7 @@ func parseTagInfo(tagInfos []TagInfo, filePath string) []TagInfo {
 			if lineCount == tagInfo.Line+1 {
 				testNameLine := fileScanner.Text()
 				if strings.HasPrefix(testNameLine, "type ") {
-					suiteName := utils.GetStringInBetween(testNameLine, "type ", " struct")
+					suiteName := util.GetStringInBetween(testNameLine, "type ", " struct")
 					tagInfo.SuiteName = suiteName
 					tagInfo.IsSuite = true
 					currSuite = suiteName
@@ -130,7 +132,7 @@ func parseTagToCaseInfo(tag TagInfo) *suite.CaseInfo {
 	caseInfo.DataKey = tagMap["$RunDataKey"]
 	parallelCount := tagMap["$ParallelCount"]
 	if parallelCount != "" {
-		count, err := utils.ConvertStrToInt(parallelCount)
+		count, err := util.ConvertStrToInt(parallelCount)
 		if err != nil {
 			caseInfo.ParallelCount = 1
 		} else {

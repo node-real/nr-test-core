@@ -28,6 +28,7 @@ type NRBaseSuite struct {
 
 func (baseSuite *NRBaseSuite) SetupSuite() {
 	initTest(baseSuite)
+
 }
 
 func (baseSuite *NRBaseSuite) TearDownTestSuite() {

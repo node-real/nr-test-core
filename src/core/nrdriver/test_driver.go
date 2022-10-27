@@ -7,7 +7,9 @@ import (
 	"github.com/node-real/nr-test-core/src/invokers/rpc"
 	"github.com/node-real/nr-test-core/src/invokers/wss"
 	"github.com/node-real/nr-test-core/src/log"
+	"github.com/node-real/nr-test-core/src/report"
 	"github.com/node-real/nr-test-core/src/testdata"
+	"github.com/node-real/nr-test-core/src/utils"
 	"sync"
 )
 
@@ -19,6 +21,7 @@ type TestDriver struct {
 	Wss           *wss.WssInvoker
 	Checker       *checker.Checker
 	Log           *log.Logger
+	Utils         *utils.Utils
 	CurrTask      string
 }
 
@@ -36,7 +39,7 @@ func Driver() TestDriver {
 		driver.Wss = &wss.WssInvoker{}
 		driver.Checker = &checker.Checker{}
 		driver.Log = &log.Logger{}
-		//driver.CurrTask = "asd"
+		report.StartReportGenerator()
 	})
 	return driver
 }

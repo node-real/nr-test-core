@@ -18,4 +18,5 @@
 *.log
 test/data
 *.DS_store
+*.json
 

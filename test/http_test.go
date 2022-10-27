@@ -1,7 +1,9 @@
 package test
 
 import (
+	"fmt"
 	"github.com/node-real/nr-test-core/src/core/nrsuite"
+	"github.com/node-real/nr-test-core/src/invokers/http"
 	"testing"
 )
 
@@ -15,17 +17,18 @@ func TestHttp(t *testing.T) {
 }
 
 func (t *HttpTest) Test_Http() {
-
-	//headers := map[string]string{
-	//	"Content-Type": "application/json",
-	//}
-	//req := http.Request{
-	//	Method:  "POST",
-	//	Headers: headers,
-	//}
-	//t.Log.Info(".......")
-	//res, err := t.Http.Call(req)
-	//t.NoError(err)
-	//result := t.Checker.CheckJsonValue("", res.Body)
-	//t.True(result, "")
+	headers := map[string]string{
+		"Content-Type": "application/json",
+	}
+	res, err := t.Http.Call(http.Request{
+		Host:     "meganode-portal.nodereal.io",
+		Protocol: "https",
+		Path:     "/api/v1/users/00000000-0000-0000-0000-000000000000/styles/component/1",
+		Method:   "GET",
+		Headers:  headers,
+	})
+	t.NoError(err)
+	fmt.Println(res.Body)
+	result := t.Checker.CheckJsonValue("{\"code\":20000,\"msg\":\"\",\"data\":{\"product_new_tag_end_time\":\"2200-01-01T00:00:00Z\",\"web3_api_marketplace_new_tag_end_time\":\"2200-01-01T00:00:00Z\"}}\n", res.Body)
+	t.True(result, "")
 }

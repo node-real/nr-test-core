@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/google/go-cmp/cmp"
-	"github.com/node-real/nr-test-core/src/invokers/http"
 	"github.com/node-real/nr-test-core/src/log"
 	"github.com/tidwall/gjson"
 	"reflect"
@@ -41,22 +40,8 @@ func (checker *Checker) IsJson(json string) bool {
 	return gjson.Valid(json)
 }
 
-// IsRange check a json field is range or not
-func (checker *Checker) IsRange(actual, exp string, interval uint64) bool {
-	a, err := hexutil.DecodeUint64(gjson.Get(actual, "result").String())
-	if err != nil {
-		return false
-	}
-	b, err := hexutil.DecodeUint64(gjson.Get(exp, "result").String())
-	if err != nil {
-		return false
-	}
-
-	return a+interval > b && b+interval > a
-}
-
-// Equals interface
-func (checker *Checker) Equals(expected, actual interface{}) bool {
+// IsEquals interface
+func (checker *Checker) IsEquals(expected, actual interface{}) bool {
 	return cmp.Equal(expected, actual)
 }
 
@@ -70,8 +55,8 @@ func (checker *Checker) CheckJsonKey(exp, actual string) bool {
 		diffs0 = checker.DiffList("root", exp, actual, diffs0)
 		diffs1 = checker.DiffList("root", actual, exp, diffs1)
 	} else if json0.IsObject() {
-		diffs0 = checker.DiffJson(exp, actual, diffs0)
-		diffs1 = checker.DiffJson(actual, exp, diffs1)
+		diffs0 = checker.diffJson(exp, actual, diffs0)
+		diffs1 = checker.diffJson(actual, exp, diffs1)
 	}
 	result := true
 	for k0, _ := range diffs0 {
@@ -89,6 +74,23 @@ func (checker *Checker) CheckJsonKey(exp, actual string) bool {
 	return result
 }
 
+func (checker *Checker) CheckNumberInterval(actual, exp uint64, interval uint64) bool {
+	return actual+interval > exp && exp+interval > actual
+}
+
+// CheckNumberStrInterval check the interval of tow number less than a value
+func (checker *Checker) CheckNumberStrInterval(actual, exp string, interval uint64) bool {
+	a, err := hexutil.DecodeUint64(actual)
+	if err != nil {
+		return false
+	}
+	b, err := hexutil.DecodeUint64(exp)
+	if err != nil {
+		return false
+	}
+	return checker.CheckNumberInterval(a, b, interval)
+}
+
 // CheckJsonValue check json key and value
 func (checker *Checker) CheckJsonValue(exp, actual string) bool {
 	if exp == "" || actual == "" {
@@ -102,8 +104,8 @@ func (checker *Checker) CheckJsonValue(exp, actual string) bool {
 		diffs0 = checker.DiffList("root", exp, actual, diffs0)
 		diffs1 = checker.DiffList("root", actual, exp, diffs1)
 	} else if json0.IsObject() {
-		diffs0 = checker.DiffJson(exp, actual, diffs0)
-		diffs1 = checker.DiffJson(actual, exp, diffs1)
+		diffs0 = checker.diffJson(exp, actual, diffs0)
+		diffs1 = checker.diffJson(actual, exp, diffs1)
 	}
 	for k0, v0 := range diffs0 {
 		log.Errorf("diffs0: %s", k0)
@@ -116,7 +118,7 @@ func (checker *Checker) CheckJsonValue(exp, actual string) bool {
 	return len(diffs0) == 0 && len(diffs1) == 0
 }
 
-func (checker *Checker) CheckJsonKeyValueNoLog(exp, actual string) (bool, map[string][]interface{}, map[string][]interface{}) {
+func (checker *Checker) CheckJsonKVReturnDiffMap(exp, actual string) (bool, map[string][]interface{}, map[string][]interface{}) {
 	if exp == "" || actual == "" {
 		log.Error("exp or actual if nil")
 		return false, nil, nil
@@ -128,10 +130,27 @@ func (checker *Checker) CheckJsonKeyValueNoLog(exp, actual string) (bool, map[st
 		diffs0 = checker.DiffList("root", exp, actual, diffs0)
 		diffs1 = checker.DiffList("root", actual, exp, diffs1)
 	} else if json0.IsObject() {
-		diffs0 = checker.DiffJson(exp, actual, diffs0)
-		diffs1 = checker.DiffJson(actual, exp, diffs1)
+		diffs0 = checker.diffJson(exp, actual, diffs0)
+		diffs1 = checker.diffJson(actual, exp, diffs1)
 	}
 	return len(diffs0) == 0 && len(diffs1) == 0, diffs0, diffs1
+}
+
+func (checker *Checker) CheckJsonGroupContains(jsonStrArray []string, except ...string) bool {
+	for _, e := range except {
+		result := false
+		for _, json := range jsonStrArray {
+			temp := checker.CheckJsonValue(json, e)
+			if temp {
+				result = true
+				break
+			}
+		}
+		if !result {
+			return result
+		}
+	}
+	return true
 }
 
 // CheckJsonKeyValueOpt check json key and value ,filter some key
@@ -143,8 +162,8 @@ func (checker *Checker) CheckJsonKeyValueOpt(exp, actual string, opt []string) b
 		diffs = checker.DiffList("root", exp, actual, diffs)
 		diffs1 = checker.DiffList("root", actual, exp, diffs1)
 	} else if json0.IsObject() {
-		diffs = checker.DiffJson(exp, actual, diffs)
-		diffs1 = checker.DiffJson(actual, exp, diffs1)
+		diffs = checker.diffJson(exp, actual, diffs)
+		diffs1 = checker.diffJson(actual, exp, diffs1)
 	}
 	for k0, v0 := range diffs {
 		if checker.IsContainsInArray(opt, k0) {
@@ -165,34 +184,23 @@ func (checker *Checker) CheckJsonKeyValueOpt(exp, actual string, opt []string) b
 	return len(diffs) == 0 && len(diffs1) == 0
 }
 
-func (checker *Checker) DiffJson(jstr0, jstr1 string, diffs map[string][]interface{}) map[string][]interface{} {
-	json0 := gjson.Parse(jstr0).Map()
-	json1 := gjson.Parse(jstr1).Map()
-	for k0, v0 := range json0 {
-		if _, ok := json1[k0]; !ok {
-			diffs[k0] = []interface{}{v0}
-			continue
-		}
-		if v0.IsObject() {
-			diffs = checker.DiffJson(v0.String(), json1[k0].String(), diffs)
-		} else if v0.IsArray() {
-			diffs = checker.DiffList(k0, v0.String(), json1[k0].String(), diffs)
-		} else if json1[k0].Raw != v0.Raw {
-			log.Debugf("=============key: %v==================", k0)
-			log.Debugf("value0: %v", v0)
-			log.Debugf("value1: %v", json1[k0])
-			if _, ok := diffs[k0]; !ok {
-				diffs[k0] = []interface{}{v0, json1[k0]}
-			} else {
-				diffs[k0] = []interface{}{diffs[k0], []interface{}{v0, json1[k0]}}
-			}
-		}
-	}
-	return diffs
+func (checker *Checker) DiffJsonReturnDiffMap(jsonStr1 string, jsonStr2 string) map[string][]interface{} {
+	diffMap := map[string][]interface{}{}
+	return checker.diffJson(jsonStr1, jsonStr2, diffMap)
 }
 
-func (checker *Checker) DiffJsonReturnDiffStr() {
+func (checker *Checker) DiffJsonReturnDiffStr(jsonStr1 string, jsonStr2 string) string {
+	var json1 map[string]interface{}
+	var json2 map[string]interface{}
+	json.Unmarshal([]byte(jsonStr1), &json1)
+	json.Unmarshal([]byte(jsonStr2), &json2)
+	_, diffStr := jsonCompare(json1, json2)
+	return diffStr
+}
 
+func (checker *Checker) DiffJsonWithPrecision(jsonStr1 string, jsonStr2 string) string {
+	//TODO: to robert
+	return ""
 }
 
 func (checker *Checker) DiffList(key, jstr0, jstr1 string, diffs map[string][]interface{}) map[string][]interface{} {
@@ -205,7 +213,7 @@ func (checker *Checker) DiffList(key, jstr0, jstr1 string, diffs map[string][]in
 			log.Debugf("value1 is null")
 			diffs[fmt.Sprintf("%s:%d", key, k0)] = []interface{}{v0}
 		} else if v0.Type.String() == "JSON" {
-			diffs = checker.DiffJson(v0.String(), json1[k0].String(), diffs)
+			diffs = checker.diffJson(v0.String(), json1[k0].String(), diffs)
 		} else if v0.IsArray() {
 			diffs = checker.DiffList(fmt.Sprintf("%s:%d", key, k0), v0.String(), json1[k0].String(), diffs)
 		} else if json1[k0].Raw != v0.Raw {
@@ -216,37 +224,6 @@ func (checker *Checker) DiffList(key, jstr0, jstr1 string, diffs map[string][]in
 		}
 	}
 	return diffs
-}
-
-func (checker *Checker) CheckResponse(response http.Response) bool {
-	//TODO:
-	return false
-}
-
-//func GroupContain(res []*httpUtil.Response, except ...string) bool {
-//	for _, e := range except {
-//		result := false
-//		for _, r := range res {
-//			temp, _, _ := KeyValueNoLog(r.Body, e)
-//			if temp {
-//				result = true
-//				break
-//			}
-//		}
-//		if !result {
-//			return result
-//		}
-//	}
-//	return true
-//
-//}
-
-func (checker *Checker) DiffJsonWithDifStr(jsonStr1 string, jsonStr2 string) (bool, string) {
-	var json1 map[string]interface{}
-	var json2 map[string]interface{}
-	json.Unmarshal([]byte(jsonStr1), &json1)
-	json.Unmarshal([]byte(jsonStr2), &json2)
-	return jsonCompare(json1, json2)
 }
 
 func jsonCompare(left, right map[string]interface{}) (bool, string) {
@@ -418,4 +395,30 @@ func processContext(diff string, n int) string {
 		r = len(post)
 	}
 	return pre[l+1:] + diff[begin:end] + post[0:r+1]
+}
+
+func (checker *Checker) diffJson(jstr0, jstr1 string, diffs map[string][]interface{}) map[string][]interface{} {
+	json0 := gjson.Parse(jstr0).Map()
+	json1 := gjson.Parse(jstr1).Map()
+	for k0, v0 := range json0 {
+		if _, ok := json1[k0]; !ok {
+			diffs[k0] = []interface{}{v0}
+			continue
+		}
+		if v0.IsObject() {
+			diffs = checker.diffJson(v0.String(), json1[k0].String(), diffs)
+		} else if v0.IsArray() {
+			diffs = checker.DiffList(k0, v0.String(), json1[k0].String(), diffs)
+		} else if json1[k0].Raw != v0.Raw {
+			log.Debugf("=============key: %v==================", k0)
+			log.Debugf("value0: %v", v0)
+			log.Debugf("value1: %v", json1[k0])
+			if _, ok := diffs[k0]; !ok {
+				diffs[k0] = []interface{}{v0, json1[k0]}
+			} else {
+				diffs[k0] = []interface{}{diffs[k0], []interface{}{v0, json1[k0]}}
+			}
+		}
+	}
+	return diffs
 }
