@@ -24,10 +24,10 @@ func InitConfig() {
 
 func parseRunningConfig() RunningConfig {
 	if !flag.Parsed() {
-		flag.Parsed()
+		flag.Parse()
 	}
 	argList := flag.Args()
-	log.Info(argList)
+	log.Info("go test args :", argList)
 	rConfig := RunningConfig{}
 	rConfig.TestFilters = map[string]string{}
 	rConfig.TestParams = map[string]string{}
@@ -44,7 +44,7 @@ func parseRunningConfig() RunningConfig {
 		}
 	}
 	parseConfigYml(configPath, &rConfig)
-	fmt.Println(rConfig)
+	log.Info("Running config:", rConfig)
 	return rConfig
 }
 
@@ -53,6 +53,7 @@ func getDefaultConfigPath() string {
 }
 
 func parseConfigYml(ymlPath string, runningConfig *RunningConfig) {
+	log.Info("Start to parse config yml file:", ymlPath)
 	if ymlPath == "" {
 		log.Info("Config yml path is empty.")
 		return
@@ -74,6 +75,7 @@ func parseConfigYml(ymlPath string, runningConfig *RunningConfig) {
 			path = getParentDirectory(path)
 		}
 	}
+	log.Info("The full path of yml file:", ymlPath)
 	fileContent, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Error("Can not read config yaml file:", path)
@@ -110,7 +112,6 @@ func parseConfigYml(ymlPath string, runningConfig *RunningConfig) {
 			}
 		}
 	}
-	fmt.Println(runningConfig)
 }
 
 func getParentDirectory(dir string) string {

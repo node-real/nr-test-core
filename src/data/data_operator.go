@@ -1,4 +1,4 @@
-package dataopt
+package data
 
 import (
 	"bufio"

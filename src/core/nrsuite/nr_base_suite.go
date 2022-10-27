@@ -1,7 +1,6 @@
 package nrsuite
 
 import (
-	"fmt"
 	"github.com/node-real/nr-test-core/src/checker"
 	"github.com/node-real/nr-test-core/src/core"
 	"github.com/node-real/nr-test-core/src/core/nrdriver"
@@ -66,6 +65,7 @@ func (baseSuite *NRBaseSuite) AppendResultData(key string, valueItem string) {
 }
 
 func Run(t *testing.T, testSuite suite.TestingSuite) {
+	log.Infof("------------Run Test: %s-------------", t.Name())
 	core.InitConfig()
 
 	argMap := core.Config.TestFilters
@@ -76,7 +76,7 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 	currSuiteValue.FieldByName("TestName").Set(reflect.ValueOf(t.Name()))
 	var currSuiteInfo TagInfo
 	isSkipSuite := false
-	for _, tagInfo := range tagInfos {
+	for index, tagInfo := range tagInfos {
 		if currSuiteName != tagInfo.SuiteName {
 			break
 		}
@@ -104,6 +104,7 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 							}
 						}
 						if !isContainOneV {
+							tagInfo.IsSkip = true
 							isSkipSuite = true
 						}
 					}
@@ -133,15 +134,18 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 						}
 						if !isContainOneV {
 							//skipCases = append(skipCases, tagInfo.MethodName)
-							tagInfo.IsSkip = false
+							tagInfo.IsSkip = true
 						}
 					}
 				}
 			}
 		}
+		tagInfos[index] = tagInfo
 	}
 
 	if isSkipSuite {
+		log.Info("Current suite tag string:", currSuiteInfo.TagStr)
+		log.Infof("Current suite is skipped!")
 		t.Skipf("Current Suite Tags:%s", currSuiteInfo.TagStr) // skip current test suite
 	}
 	var caseInfos []suite.CaseInfo
@@ -151,7 +155,7 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 			caseInfos = append(caseInfos, *caseInfo)
 		}
 	}
-	fmt.Println("caseInfos: ", caseInfos)
+	log.Info("caseInfos: ", caseInfos)
 	suite.Run(t, testSuite, caseInfos)
 }
 

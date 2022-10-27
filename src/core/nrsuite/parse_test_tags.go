@@ -2,7 +2,7 @@ package nrsuite
 
 import (
 	"bufio"
-	"fmt"
+	"github.com/node-real/nr-test-core/src/log"
 	"github.com/node-real/nr-test-core/src/utils"
 	"github.com/stretchr/testify/suite"
 	"go/parser"
@@ -39,13 +39,13 @@ func parseTestTagInfos() []TagInfo {
 	fset := token.NewFileSet() // positions are relative to fset
 	direction, err := parser.ParseDir(fset, "./", nil, parser.ParseComments)
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err)
 		return nil
 	}
 	var tagInfos []TagInfo
 	var currFilePath string
-	for k, d := range direction {
-		fmt.Println("package", k)
+	for _, d := range direction {
+		//log.Info("package", k)
 		for n, f := range d.Files {
 			for _, fileP := range filePaths {
 				if filepath.Base(fileP) == n {
@@ -128,7 +128,7 @@ func parseTagToCaseInfo(tag TagInfo) *suite.CaseInfo {
 	caseInfo.MethodName = tag.MethodName
 	caseInfo.SuiteName = tag.SuiteName
 	caseInfo.TagStr = tag.TagStr
-	//caseInfo.IsSkip = tag.
+	caseInfo.IsSkip = tag.IsSkip
 	caseInfo.DataKey = tagMap["$RunDataKey"]
 	parallelCount := tagMap["$ParallelCount"]
 	if parallelCount != "" {
