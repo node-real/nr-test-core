@@ -40,7 +40,7 @@ func (t *DataSuiteTest) Test_1(data string, tt *testing.T) {
 	assert.True(tt, true, "*****")
 }
 
-// Tags:: $RunDataKey: $ParallelCount:300
+// Tags:: $RunDataKey: $ParallelCount:30
 func (t *DataSuiteTest) Test_2(data string, tt *testing.T) {
 	tt.Log("test data:", data)
 	time.Sleep(time.Millisecond * 300)

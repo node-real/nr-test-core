@@ -1,22 +1,43 @@
 package report
 
 import (
-	"github.com/node-real/nr-test-core/src/utils"
+	"encoding/json"
+	"fmt"
+	"github.com/node-real/nr-test-core/src/invokers/rpc"
+	"github.com/node-real/nr-test-core/src/log"
 )
 
-var util = utils.Utils{}
-
-func StartReportGenerator() {
-	go test()
+type ReportOperator struct {
 }
 
-func test() {
-	//cmd := exec.Command("go", "run", "/Users/robert/Git/nr-test-core/src/report/main/main.go", "-o", "test_report.html")
-	////cmd.Stdout = os.Stdout
-	//stdIn, _ := cmd.StdinPipe()
-	//file, _ := os.Open("/Users/robert/Git/nr-test-core/test/resuit.json")
-	//io.Copy(stdIn, file)
-	//data, err := cmd.Output()
-	//fmt.Println(data, err)
-	//stdIn.Close()
+func (t *ReportOperator) BuildRpcError(msg *rpc.RpcMessage, actual, exp interface{}) string {
+	m, _ := json.Marshal(msg)
+	info := fmt.Sprintf("req: %s\nexp: %v\nactul: %v", m, exp, actual)
+	log.Debug(info)
+	return info
 }
+
+func (t *ReportOperator) BuildRpcErrorWithTrace(msg *rpc.RpcMessage, actual, exp interface{}, traceID string) string {
+	m, _ := json.Marshal(msg)
+	info := fmt.Sprintf("req: %s\nexp: %v\nactul: %v\ntraceId: %s", m, exp, actual, traceID)
+	log.Debug(info)
+	return info
+}
+
+func (t *ReportOperator) BuildRpcBatchError(msg []*rpc.RpcMessage, actual, exp interface{}) string {
+	m, _ := json.Marshal(msg)
+	info := fmt.Sprintf("req: %s\nexp: %v\nactul: %v", m, exp, actual)
+	log.Debug(fmt.Sprintf("req: %s\n===exp: %v\n===actul: %v", m, exp, actual))
+	return info
+}
+
+func (t *ReportOperator) BuildRpcBatchErrorWithTrace(msg []*rpc.RpcMessage, actual, exp interface{}, traceID string) string {
+	m, _ := json.Marshal(msg)
+	info := fmt.Sprintf("req: %s\nexp: %v\nactul: %vtraceId: %s", m, exp, actual, traceID)
+	log.Debug(fmt.Sprintf("req: %s\n===exp: %v\n===actul: %v", m, exp, actual))
+	return info
+}
+
+//func (t *ReportOperator) AlertToSlack(hookStr string) {
+//	//TODO:
+//}

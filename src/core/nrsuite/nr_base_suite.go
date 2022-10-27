@@ -14,8 +14,9 @@ import (
 )
 
 var (
-	once   sync.Once
-	config *core.RunningConfig
+// oneceSetupTest sync.Once
+// onceInitConfig sync.Once
+// config *core.RunningConfig
 )
 
 type NRBaseSuite struct {
@@ -27,8 +28,8 @@ type NRBaseSuite struct {
 }
 
 func (baseSuite *NRBaseSuite) SetupSuite() {
-	initTest(baseSuite)
-
+	baseSuite.RunningConfig = core.Config
+	baseSuite.TestDriver = nrdriver.Driver()
 }
 
 func (baseSuite *NRBaseSuite) TearDownTestSuite() {
@@ -50,17 +51,15 @@ func (baseSuite *NRBaseSuite) AppendResultData(key string, valueItem string) {
 }
 
 func Run(t *testing.T, testSuite suite.TestingSuite) {
-	//nrBaseSuite := testSuite.(NRBaseSuite)
 	if !flag.Parsed() {
 		flag.Parsed()
 	}
 
-	once.Do(func() {
-		configV := parseRunningConfig()
-		config = &configV
-	})
+	//onceInitConfig.Do(func() {
+	//	initConfig()
+	//})
 
-	argMap := config.TestFilters
+	argMap := core.Config.TestFilters
 
 	tagInfos := parseTestTagInfos()
 	currSuiteName := reflect.TypeOf(testSuite).Elem().Name()
@@ -145,11 +144,6 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 	}
 	fmt.Println("caseInfos: ", caseInfos)
 	suite.Run(t, testSuite, caseInfos)
-}
-
-func initTest(baseSuite *NRBaseSuite) {
-	baseSuite.TestDriver = nrdriver.Driver()
-	baseSuite.RunningConfig = config
 }
 
 //func getSkipCases(tagInfos []TagInfo) []string {

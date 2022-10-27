@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+//var log = log.Log
+
 type WssInvoker struct {
 	Channel WssChannel
 }

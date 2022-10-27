@@ -1,9 +1,8 @@
-package nrsuite
+package core
 
 import (
 	"flag"
 	"fmt"
-	"github.com/node-real/nr-test-core/src/core"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
@@ -11,9 +10,16 @@ import (
 	"strings"
 )
 
-func parseRunningConfig() core.RunningConfig {
+var Config *RunningConfig
+
+func init() {
+	configV := parseRunningConfig()
+	Config = &configV
+}
+
+func parseRunningConfig() RunningConfig {
 	argList := flag.Args()
-	rConfig := core.RunningConfig{}
+	rConfig := RunningConfig{}
 	rConfig.TestFilters = map[string]string{}
 	rConfig.TestParams = map[string]string{}
 
@@ -31,7 +37,7 @@ func parseRunningConfig() core.RunningConfig {
 	return rConfig
 }
 
-func parseConfigYml(ymlPath string, runningConfig *core.RunningConfig) {
+func parseConfigYml(ymlPath string, runningConfig *RunningConfig) {
 	path, err := os.Getwd()
 	for i := 0; i < 10; i++ {
 		fileEnum, _ := os.ReadDir(path)
@@ -56,6 +62,10 @@ func parseConfigYml(ymlPath string, runningConfig *core.RunningConfig) {
 	configMap := map[string]interface{}{}
 	yaml.Unmarshal(fileContent, &configMap)
 	for k, v := range configMap {
+		if k == "LogLevel" {
+			value := v.(int)
+			runningConfig.LogLevel = value
+		}
 		if k == "TestFilters" {
 			aItem, _ := v.([]interface{})
 			//fmt.Println(a)

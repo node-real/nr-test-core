@@ -68,10 +68,10 @@ func GetGID() uint64 {
 
 var Log *Logger
 
-func init() {
-	//Default print to console
-	InitLog(InfoLog, Stdout)
-}
+//func init() {
+//	//Default print to console
+//	InitLog(InfoLog, Stdout)
+//}
 
 func LevelName(level int) string {
 	if name, ok := levels[level]; ok {
@@ -91,6 +91,28 @@ func NameLevel(name string) int {
 		level, _ = strconv.Atoi(name[len(NAME_PREFIX):])
 	}
 	return level
+}
+
+func FileOpen(path string) (*os.File, error) {
+	if fi, err := os.Stat(path); err == nil {
+		if !fi.IsDir() {
+			return nil, fmt.Errorf("open %s: not a directory", path)
+		}
+	} else if os.IsNotExist(err) {
+		if err := os.MkdirAll(path, 0766); err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, err
+	}
+
+	var currenttime = time.Now().Format("2006-01-02_15.04.05")
+
+	logfile, err := os.OpenFile(path+currenttime+"_LOG.log0", os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		return nil, err
+	}
+	return logfile, nil
 }
 
 func Trace(a ...interface{}) {
@@ -183,35 +205,13 @@ func Fatalf(format string, a ...interface{}) {
 	Log.Fatalf(format, a...)
 }
 
-func FileOpen(path string) (*os.File, error) {
-	if fi, err := os.Stat(path); err == nil {
-		if !fi.IsDir() {
-			return nil, fmt.Errorf("open %s: not a directory", path)
-		}
-	} else if os.IsNotExist(err) {
-		if err := os.MkdirAll(path, 0766); err != nil {
-			return nil, err
-		}
-	} else {
-		return nil, err
-	}
-
-	var currenttime = time.Now().Format("2006-01-02_15.04.05")
-
-	logfile, err := os.OpenFile(path+currenttime+"_LOG.log", os.O_RDWR|os.O_CREATE, 0666)
-	if err != nil {
-		return nil, err
-	}
-	return logfile, nil
-}
-
 // Init deprecated, use InitLog instead
 func Init(a ...interface{}) {
 	os.Stderr.WriteString("warning: use of deprecated Init. Use InitLog instead\n")
 	InitLog(InfoLog, a...)
 }
 
-func InitLog(logLevel int, a ...interface{}) {
+func /**/ InitLog(logLevel int, a ...interface{}) *Logger {
 	writers := []io.Writer{}
 	var logFile *os.File
 	var err error
@@ -223,20 +223,21 @@ func InitLog(logLevel int, a ...interface{}) {
 			case string:
 				logFile, err = FileOpen(o.(string))
 				if err != nil {
-					fmt.Println("error: open log file failed")
+					fmt.Println("error: open log0 file failed")
 					os.Exit(1)
 				}
 				writers = append(writers, logFile)
 			case *os.File:
 				writers = append(writers, o.(*os.File))
 			default:
-				fmt.Println("error: invalid log location")
+				fmt.Println("error: invalid log0 location")
 				os.Exit(1)
 			}
 		}
 	}
 	fileAndStdoutWrite := io.MultiWriter(writers...)
 	Log = New(fileAndStdoutWrite, "", log.LUTC|log.Ldate|log.Lmicroseconds, logLevel, logFile)
+	return Log
 }
 
 func GetLogFileSize() (int64, error) {
