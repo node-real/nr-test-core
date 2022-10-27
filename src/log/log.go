@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	path2 "path"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -68,16 +69,61 @@ func GetGID() uint64 {
 
 var Log *Logger
 
-//func init() {
-//	//Default print to console
-//	InitLog(InfoLog, Stdout)
-//}
+func init() {
+	logFile := newOutputLogFile()
+	InitLog(InfoLog, logFile)
+}
 
 func LevelName(level int) string {
 	if name, ok := levels[level]; ok {
 		return name
 	}
 	return NAME_PREFIX + strconv.Itoa(level)
+}
+
+func newOutputLogFile() *os.File {
+	path, _ := os.Getwd()
+	for i := 0; i < 10; i++ {
+		fileEnum, _ := os.ReadDir(path)
+		hasMod := false
+		for _, f := range fileEnum {
+			if f.Name() == "go.mod" {
+				hasMod = true
+				break
+			}
+		}
+		if hasMod {
+			break
+		} else {
+			path = substr(path, 0, strings.LastIndex(path, "/"))
+		}
+	}
+	outputPath := path2.Join(path, "output")
+	_, err := os.Stat(outputPath)
+	if err != nil {
+		os.Mkdir(outputPath, 0755)
+	}
+
+	logPath := path2.Join(outputPath, getLogName())
+	logFile, err := os.Create(logPath)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return logFile
+}
+
+func getLogName() string {
+	timeStr := time.Now().Format("2006-01-02_15:04:05")
+	return fmt.Sprintf("%s.log", timeStr)
+}
+
+func substr(s string, pos, length int) string {
+	runes := []rune(s)
+	l := pos + length
+	if l > len(runes) {
+		l = len(runes)
+	}
+	return string(runes[pos:l])
 }
 
 func NameLevel(name string) int {
@@ -206,10 +252,10 @@ func Fatalf(format string, a ...interface{}) {
 }
 
 // Init deprecated, use InitLog instead
-func Init(a ...interface{}) {
-	os.Stderr.WriteString("warning: use of deprecated Init. Use InitLog instead\n")
-	InitLog(InfoLog, a...)
-}
+//func Init(a ...interface{}) {
+//	os.Stderr.WriteString("warning: use of deprecated Init. Use InitLog instead\n")
+//	InitLog(InfoLog, a...)
+//}
 
 func /**/ InitLog(logLevel int, a ...interface{}) *Logger {
 	writers := []io.Writer{}

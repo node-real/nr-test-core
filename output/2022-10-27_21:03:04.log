@@ -1,0 +1,40 @@
+2022/10/27 13:03:04.522020 [0;36m[INFO][m GID 4, [level:p0]
+2022/10/27 13:03:04.522093 [0;36m[INFO][m GID 4, Config yml path is empty.
+2022/10/27 13:03:04.524033 [0;36m[INFO][m GID 4, === Setup Test Suite: TestSuite ===
+2022/10/27 13:03:04.524173 [0;36m[INFO][m GID 5, === Before Test: Test_1 ===
+2022/10/27 13:03:04.524196 [0;36m[INFO][m GID 5, === After Test: Test_1 ===
+2022/10/27 13:03:04.524236 [0;36m[INFO][m GID 6, === Before Test: Test_2 ===
+2022/10/27 13:03:04.524255 [0;36m[INFO][m GID 6, === After Test: Test_2 ===
+2022/10/27 13:03:04.524284 [0;36m[INFO][m GID 7, === Before Test: Test_3 ===
+2022/10/27 13:03:04.524302 [0;36m[INFO][m GID 7, === After Test: Test_3 ===
+2022/10/27 13:03:04.524358 [0;36m[INFO][m GID 8, === Before Test: Test_4 ===
+2022/10/27 13:03:04.524390 [0;36m[INFO][m GID 8, === After Test: Test_4 ===
+2022/10/27 13:03:04.524447 [0;36m[INFO][m GID 9, === Before Test: Test_5 ===
+2022/10/27 13:03:04.524512 [0;36m[INFO][m GID 9, === After Test: Test_5 ===
+2022/10/27 13:03:04.524584 [0;36m[INFO][m GID 4, === TearDown Test Suite: TestSuite ===
+2022/10/27 13:03:04.525686 [0;36m[INFO][m GID 10, === Setup Test Suite: TestChecker ===
+2022/10/27 13:03:04.525733 [0;36m[INFO][m GID 11, === Before Test: Test_diffJson ===
+2022/10/27 13:03:04.525866 [0;36m[INFO][m GID 11, === After Test: Test_diffJson ===
+2022/10/27 13:03:04.525884 [0;36m[INFO][m GID 10, === TearDown Test Suite: TestChecker ===
+2022/10/27 13:03:04.526565 [0;36m[INFO][m GID 12, === Setup Test Suite: TestDataSuite ===
+2022/10/27 13:03:04.526611 [0;36m[INFO][m GID 13, === Before Test: Test_1 ===
+2022/10/27 13:03:14.528225 [0;36m[INFO][m GID 83, === Before Test: Test_2 ===
+2022/10/27 13:03:14.528509 [0;36m[INFO][m GID 12, === TearDown Test Suite: TestDataSuite ===
+2022/10/27 13:03:14.532304 [0;36m[INFO][m GID 84, === Setup Test Suite: TestDataOptSuite ===
+2022/10/27 13:03:14.532569 [0;36m[INFO][m GID 85, === Before Test: Test_1 ===
+2022/10/27 13:03:14.532737 [0;31m[ERROR][m GID 85, *****
+2022/10/27 13:03:14.532776 [0;31m[ERROR][m GID 85, *******
+2022/10/27 13:03:14.532808 [0;31m[ERROR][m GID 85, ********
+2022/10/27 13:03:14.534537 [0;36m[INFO][m GID 85, === After Test: Test_1 ===
+2022/10/27 13:03:14.534650 [0;36m[INFO][m GID 84, === TearDown Test Suite: TestDataOptSuite ===
+2022/10/27 13:03:14.538941 [0;36m[INFO][m GID 87, === Setup Test Suite: TestLogSuite ===
+2022/10/27 13:03:14.539069 [0;36m[INFO][m GID 48, === Before Test: Test_1 ===
+2022/10/27 13:03:14.539125 [0;31m[ERROR][m GID 48, *****
+2022/10/27 13:03:14.539157 [0;31m[ERROR][m GID 48, *******
+2022/10/27 13:03:14.539182 [0;31m[ERROR][m GID 48, ********
+2022/10/27 13:03:14.539206 [0;36m[INFO][m GID 48, === After Test: Test_1 ===
+2022/10/27 13:03:14.539250 [0;36m[INFO][m GID 87, === TearDown Test Suite: TestLogSuite ===
+2022/10/27 13:03:14.542038 [0;36m[INFO][m GID 98, === Setup Test Suite: TestUtils ===
+2022/10/27 13:03:14.542123 [0;36m[INFO][m GID 99, === Before Test: Test_1 ===
+2022/10/27 13:03:14.542159 [0;36m[INFO][m GID 99, === After Test: Test_1 ===
+2022/10/27 13:03:14.542194 [0;36m[INFO][m GID 98, === TearDown Test Suite: TestUtils ===

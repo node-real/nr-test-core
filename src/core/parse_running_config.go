@@ -3,29 +3,39 @@ package core
 import (
 	"flag"
 	"fmt"
+	"github.com/node-real/nr-test-core/src/log"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 var Config *RunningConfig
+var once sync.Once
 
-func init() {
-	configV := parseRunningConfig()
-	Config = &configV
+func InitConfig() {
+	once.Do(func() {
+		configV := parseRunningConfig()
+		Config = &configV
+	})
 }
 
 func parseRunningConfig() RunningConfig {
+	if !flag.Parsed() {
+		flag.Parsed()
+	}
 	argList := flag.Args()
+	log.Info(argList)
 	rConfig := RunningConfig{}
 	rConfig.TestFilters = map[string]string{}
 	rConfig.TestParams = map[string]string{}
 
+	configPath := getDefaultConfigPath()
 	for _, arg := range argList {
 		if strings.Contains(arg, ".yml") {
-			parseConfigYml(arg, &rConfig)
+			configPath = arg
 		} else {
 			r := strings.Split(arg, ":")
 			if len(r) == 2 {
@@ -33,11 +43,20 @@ func parseRunningConfig() RunningConfig {
 			}
 		}
 	}
+	parseConfigYml(configPath, &rConfig)
 	fmt.Println(rConfig)
 	return rConfig
 }
 
+func getDefaultConfigPath() string {
+	return ""
+}
+
 func parseConfigYml(ymlPath string, runningConfig *RunningConfig) {
+	if ymlPath == "" {
+		log.Info("Config yml path is empty.")
+		return
+	}
 	path, err := os.Getwd()
 	for i := 0; i < 10; i++ {
 		fileEnum, _ := os.ReadDir(path)
@@ -57,7 +76,7 @@ func parseConfigYml(ymlPath string, runningConfig *RunningConfig) {
 	}
 	fileContent, err := ioutil.ReadFile(path)
 	if err != nil {
-		panic(err)
+		log.Error("Can not read config yaml file:", path)
 	}
 	configMap := map[string]interface{}{}
 	yaml.Unmarshal(fileContent, &configMap)

@@ -29,7 +29,6 @@ func (t *BaseSuiteTest) Test_2() {
 // Tags:: level:p2 net:abc
 func (t *BaseSuiteTest) Test_3() {
 	fmt.Println("*****2")
-
 }
 
 // Tags:: level:p3 net:abc

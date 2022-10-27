@@ -1,11 +1,11 @@
 package nrsuite
 
 import (
-	"flag"
 	"fmt"
 	"github.com/node-real/nr-test-core/src/checker"
 	"github.com/node-real/nr-test-core/src/core"
 	"github.com/node-real/nr-test-core/src/core/nrdriver"
+	"github.com/node-real/nr-test-core/src/log"
 	"github.com/stretchr/testify/suite"
 	"reflect"
 	"strings"
@@ -13,32 +13,47 @@ import (
 	"testing"
 )
 
-var (
+//var (
 // oneceSetupTest sync.Once
-// onceInitConfig sync.Once
+//onceInitConfig sync.Once
 // config *core.RunningConfig
-)
+//)
 
 type NRBaseSuite struct {
 	suite.Suite
 	nrdriver.TestDriver
 	TestData   map[string][]string
 	ResultData map[string][]string
+	TestName   string
 	mu         sync.Mutex
 }
 
 func (baseSuite *NRBaseSuite) SetupSuite() {
+	log.Infof("=== Setup Test Suite: %s ===", baseSuite.TestName)
 	baseSuite.RunningConfig = core.Config
 	baseSuite.TestDriver = nrdriver.Driver()
 }
 
-func (baseSuite *NRBaseSuite) TearDownTestSuite() {
+//
+//func (baseSuite *NRBaseSuite) SetupTest() {
+//	log.Infof("=== Setup Test ===")
+//}
+
+func (baseSuite *NRBaseSuite) TearDownSuite() {
+	log.Infof("=== TearDown Test Suite: %s ===", baseSuite.TestName)
 }
 
-func (baseSuite *NRBaseSuite) BeforeTest() {
+//
+//func (baseSuite *NRBaseSuite) TearDownTest() {
+//	log.Infof("=== TearDown Test ===")
+//}
+
+func (baseSuite *NRBaseSuite) BeforeTest(suiteName, testName string) {
+	log.Infof("=== Before Test: %s ===", testName)
 }
 
 func (baseSuite *NRBaseSuite) AfterTest(suiteName, testName string) {
+	log.Infof("=== After Test: %s ===", testName)
 }
 
 func (baseSuite *NRBaseSuite) AppendResultData(key string, valueItem string) {
@@ -51,20 +66,14 @@ func (baseSuite *NRBaseSuite) AppendResultData(key string, valueItem string) {
 }
 
 func Run(t *testing.T, testSuite suite.TestingSuite) {
-	if !flag.Parsed() {
-		flag.Parsed()
-	}
-
-	//onceInitConfig.Do(func() {
-	//	initConfig()
-	//})
+	core.InitConfig()
 
 	argMap := core.Config.TestFilters
 
 	tagInfos := parseTestTagInfos()
 	currSuiteName := reflect.TypeOf(testSuite).Elem().Name()
-	//var skipCases []string
-	//var currSuiteTags string
+	currSuiteValue := reflect.ValueOf(testSuite).Elem()
+	currSuiteValue.FieldByName("TestName").Set(reflect.ValueOf(t.Name()))
 	var currSuiteInfo TagInfo
 	isSkipSuite := false
 	for _, tagInfo := range tagInfos {

@@ -32,13 +32,12 @@ var (
 	driver TestDriver
 )
 
-func init() {
+func initDriver() {
 	if core.Config != nil {
 		DConfig = DriverConfig{
 			LogLevel: core.Config.LogLevel,
 		}
 	}
-	Driver()
 }
 
 func Driver() TestDriver {
@@ -50,11 +49,14 @@ func Driver() TestDriver {
 		driver.Wss = &wss.WssInvoker{}
 		driver.Checker = &checker.Checker{}
 		driver.Utils = &utils.Utils{}
+		core.InitConfig()
+		initDriver()
 		var logLevel = log.InfoLog
 		if DConfig != (DriverConfig{}) && logLevel != 0 {
 			logLevel = log.InfoLog
 		}
-		driver.Log = log.InitLog(logLevel, log.Stdout)
+		log.Log.SetDebugLevel(logLevel)
+		driver.Log = log.Log
 	})
 	return driver
 }
