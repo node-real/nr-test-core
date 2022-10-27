@@ -15,8 +15,9 @@
 ## vendor/
 .idea/
 *.html
-*.log0
+*.log
 test/data
 *.DS_store
 *.json
+output/
 
