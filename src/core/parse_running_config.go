@@ -33,17 +33,22 @@ func parseRunningConfig() RunningConfig {
 	rConfig.TestParams = map[string]string{}
 
 	configPath := getDefaultConfigPath()
+	argsTestFilter := map[string]string{}
 	for _, arg := range argList {
 		if strings.Contains(arg, ".yml") {
 			configPath = arg
 		} else {
 			r := strings.Split(arg, ":")
 			if len(r) == 2 {
-				rConfig.TestFilters[r[0]] = r[1]
+				argsTestFilter[r[0]] = r[1]
 			}
 		}
 	}
 	parseConfigYml(configPath, &rConfig)
+	for k, v := range argsTestFilter {
+		rConfig.TestFilters[k] = v
+	}
+
 	log.Info("Running config:", rConfig)
 	return rConfig
 }

@@ -12,12 +12,6 @@ import (
 	"testing"
 )
 
-//var (
-// oneceSetupTest sync.Once
-//onceInitConfig sync.Once
-// config *core.RunningConfig
-//)
-
 type NRBaseSuite struct {
 	suite.Suite
 	nrdriver.TestDriver
@@ -29,22 +23,12 @@ type NRBaseSuite struct {
 
 func (baseSuite *NRBaseSuite) SetupSuite() {
 	log.Infof("=== Setup Test Suite: %s ===", baseSuite.TestName)
-	baseSuite.TestDriver = nrdriver.Driver()
+	baseSuite.TestDriver = *nrdriver.Driver()
 }
-
-//
-//func (baseSuite *NRBaseSuite) SetupTest() {
-//	log.Infof("=== Setup Test ===")
-//}
 
 func (baseSuite *NRBaseSuite) TearDownSuite() {
 	log.Infof("=== TearDown Test Suite: %s ===", baseSuite.TestName)
 }
-
-//
-//func (baseSuite *NRBaseSuite) TearDownTest() {
-//	log.Infof("=== TearDown Test ===")
-//}
 
 func (baseSuite *NRBaseSuite) BeforeTest(suiteName, testName string) {
 	log.Infof("=== Before Test: %s ===", testName)

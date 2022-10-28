@@ -3,7 +3,6 @@ package data
 import (
 	"bufio"
 	"encoding/csv"
-	"fmt"
 	"github.com/node-real/nr-test-core/src/log"
 	"os"
 	"strings"
@@ -37,7 +36,8 @@ func (dataOp *DataOperator) ReadCsvData(filePath string) [][]string {
 func (dataOp *DataOperator) ReadCustomCaseData(filePath string) []CustomCaseData {
 	readFile, err := os.Open(filePath)
 	if err != nil {
-		fmt.Println(err)
+		log.Error(err)
+		//fmt.Println(err)
 	}
 	fileScanner := bufio.NewScanner(readFile)
 	fileScanner.Split(bufio.ScanLines)

@@ -40,7 +40,7 @@ func initDriver() {
 	}
 }
 
-func Driver() TestDriver {
+func Driver() *TestDriver {
 	once.Do(func() {
 		driver = TestDriver{}
 		driver.DataOperator = &data.DataOperator{}
@@ -59,5 +59,5 @@ func Driver() TestDriver {
 		log.Log.SetDebugLevel(logLevel)
 		driver.Log = log.Log
 	})
-	return driver
+	return &driver
 }

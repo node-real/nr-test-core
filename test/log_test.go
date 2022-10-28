@@ -19,5 +19,4 @@ func (t *LogTest) Test_1() {
 	t.Log.Error("*****")
 	log.Error("*******")
 	nrdriver.Driver().Log.Error("********")
-	//fmt.Println(data)
 }
