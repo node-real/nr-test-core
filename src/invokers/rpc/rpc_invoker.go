@@ -2,9 +2,11 @@ package rpc
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/node-real/nr-test-core/src/invokers/http"
+	"github.com/node-real/nr-test-core/src/log"
 	"strings"
 )
 
@@ -32,6 +34,10 @@ func (rpcInvoker *RpcInvoker) NewMsg(method string, params ...interface{}) (*Rpc
 
 // SendMsg call  http util
 func (rpcInvoker *RpcInvoker) SendMsg(host string, msg *RpcMessage) (*http.Response, error) {
+	if host == "" {
+		log.Error("The rpc request host is empty")
+		return nil, errors.New("the rpc request host is empty")
+	}
 	body, err := json.Marshal(msg)
 	if err != nil {
 		return nil, err
@@ -40,6 +46,10 @@ func (rpcInvoker *RpcInvoker) SendMsg(host string, msg *RpcMessage) (*http.Respo
 		"Content-Type": "application/json",
 	}
 	url := strings.Split(host, "://")
+	if len(url) != 2 {
+		log.Error("the rpc request host format is incorrect", url)
+		return nil, errors.New("the rpc request host format is incorrect")
+	}
 	req := http.Request{
 		"POST",
 		url[0],

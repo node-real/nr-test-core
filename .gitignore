@@ -14,10 +14,11 @@
 ## Dependency directories (remove the comment below to include it)
 ## vendor/
 .idea/
+output/
+test/data
 *.html
 *.log
-test/data
 *.DS_store
 *.json
-output/
+
 

@@ -29,7 +29,6 @@ type NRBaseSuite struct {
 
 func (baseSuite *NRBaseSuite) SetupSuite() {
 	log.Infof("=== Setup Test Suite: %s ===", baseSuite.TestName)
-	baseSuite.RunningConfig = core.Config
 	baseSuite.TestDriver = nrdriver.Driver()
 }
 

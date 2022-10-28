@@ -50,6 +50,7 @@ func Driver() TestDriver {
 		driver.Checker = &checker.Checker{}
 		driver.Utils = &utils.Utils{}
 		core.InitConfig()
+		driver.RunningConfig = core.Config
 		initDriver()
 		var logLevel = log.InfoLog
 		if DConfig != (DriverConfig{}) && logLevel != 0 {
