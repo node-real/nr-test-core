@@ -141,29 +141,3 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 	log.Info("caseInfos: ", caseInfos)
 	suite.Run(t, testSuite, caseInfos)
 }
-
-//func getSkipCases(tagInfos []TagInfo) []string {
-//	var skipCases []string
-//	for _, tagInfo := range tagInfos {
-//		if tagInfo.TagMap["skip"] == "true" && tagInfo.MethodName != "" {
-//			skipCases = append(skipCases, tagInfo.MethodName)
-//		}
-//	}
-//	return skipCases
-//}
-
-//reflect.ValueOf(testSuite).FieldByName("TagInfos").(tagInfos)
-//suiteValue := reflect.TypeOf(testSuite).Elem()
-//baseSuite, r := suiteValue.FieldByName("NRBaseSuite")
-//var skipCases []string
-//if r {
-//	runningTag := baseSuite.Tag
-//	if runningTag.Get("skipSuite") == "true" {
-//		t.Skipf("Skip Suite")
-//	}
-//	skipCaseStr := runningTag.Get("skipCase")
-//	if runningTag.Get("skipCase") != "" {
-//		skipCases = strings.Split(skipCaseStr, ",")
-//	}
-//}
-//skipCases := getSkipCases(tagInfos)
