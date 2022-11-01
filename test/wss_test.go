@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-// Tags:: level:p1  net:eth,abc
 type WssSuiteTest struct {
 	nrsuite.NRBaseSuite
 }

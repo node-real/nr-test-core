@@ -49,6 +49,10 @@ func (t *DataSuiteTest) Test_2(data string, tt *testing.T) {
 	}
 }
 
+func (t *DataSuiteTest) Test_3(data string, tt *testing.T) {
+	t.Assertions.True(false)
+}
+
 func (t *DataSuiteTest) AfterTest(suiteName, testName string) {
 	if t.ResultData["targetToken"] != nil {
 		t.Utils.WriteFileWithLines(t.ResultData["targetToken"], "./data/result_tokens.log")

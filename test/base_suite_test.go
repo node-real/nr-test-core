@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-// Tags:: level:p0
 type BaseSuiteTest struct {
 	nrsuite.NRBaseSuite
 }
@@ -15,7 +14,6 @@ func TestSuite(t *testing.T) {
 	nrsuite.Run(t, new(BaseSuiteTest))
 }
 
-// Tags:: level:p0
 func (t *BaseSuiteTest) Test_1() {
 	fmt.Println(t.RunningConfig.TestParams["NoderealRpcUrl"])
 	fmt.Println("*****1")

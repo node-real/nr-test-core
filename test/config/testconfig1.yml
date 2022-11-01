@@ -3,7 +3,7 @@ LogLevel: 3
 #  - parallelCount: 10
 TestFilters:
   - net : eth
-  - level : p0
+  - level : p1
 TestParams:
   - host: www.xxxx.com
   - NoderealRpcUrl: https://eth-rinkeby.nodereal.io/v1/60bb5a37028747c498719477a555c6de
