@@ -26,7 +26,7 @@ type TagInfo struct {
 
 var util = utils.Utils{}
 
-func parseTestTagInfos() []TagInfo {
+func parseTestTagInfos(suiteName string) []TagInfo {
 	var filePaths []string
 	for m := 0; m < 5; m++ {
 		_, filename, _, r := runtime.Caller(m)
@@ -66,34 +66,38 @@ func parseTestTagInfos() []TagInfo {
 			}
 		}
 	}
-	return parseTagInfo(tagInfos, currFilePath)
+	return parseTagInfo(suiteName, tagInfos, currFilePath)
 }
 
-func parseTagInfo(tagInfos []TagInfo, filePath string) []TagInfo {
+func parseTagInfo(targetSuite string, tagInfos []TagInfo, filePath string) []TagInfo {
 	file, _ := os.Open(filePath)
 	fileScanner := bufio.NewScanner(file)
 	lineCount := 1
 	var newTagInfos []TagInfo
-	var currSuite string
 	for fileScanner.Scan() {
 		for _, tagInfo := range tagInfos {
 			if lineCount == tagInfo.Line+1 {
 				testNameLine := fileScanner.Text()
 				if strings.HasPrefix(testNameLine, "type ") {
 					suiteName := util.GetStringInBetween(testNameLine, "type ", " struct")
-					tagInfo.SuiteName = suiteName
-					tagInfo.IsSuite = true
-					currSuite = suiteName
-					newTagInfos = append(newTagInfos, tagInfo)
+					if suiteName == targetSuite {
+						tagInfo.SuiteName = suiteName
+						tagInfo.IsSuite = true
+						newTagInfos = append(newTagInfos, tagInfo)
+					}
 				} else if strings.HasPrefix(testNameLine, "func") {
 					compileRegex := regexp.MustCompile("\\)(.*?)\\(")
 					matchArr := compileRegex.FindStringSubmatch(testNameLine)
 					methodName := matchArr[len(matchArr)-1]
-					//methodName := utils.GetStringInBetween(testNameLine, ")", "(")
+
+					suiteRegex := regexp.MustCompile("\\*(.*?)\\)")
+					matchArr1 := suiteRegex.FindStringSubmatch(testNameLine)
+					suiteName := matchArr1[len(matchArr1)-1]
+
 					methodName = strings.Trim(methodName, " ")
-					if strings.HasPrefix(methodName, "Test") {
+					if strings.HasPrefix(methodName, "Test") && suiteName == targetSuite {
 						tagInfo.MethodName = methodName
-						tagInfo.SuiteName = currSuite
+						tagInfo.SuiteName = suiteName
 						tagInfo.IsSuite = false
 						newTagInfos = append(newTagInfos, tagInfo)
 					}

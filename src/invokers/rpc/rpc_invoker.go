@@ -13,6 +13,7 @@ import (
 var httpIn = http.HttpInvoker{}
 
 type RpcInvoker struct {
+	RpcHeader map[string]string
 }
 
 type jsonError struct {
@@ -42,8 +43,10 @@ func (rpcInvoker *RpcInvoker) SendMsg(host string, msg *RpcMessage) (*http.Respo
 	if err != nil {
 		return nil, err
 	}
-	headers := map[string]string{
-		"Content-Type": "application/json",
+	if rpcInvoker.RpcHeader == nil {
+		rpcInvoker.RpcHeader = map[string]string{
+			"Content-Type": "application/json",
+		}
 	}
 	url := strings.Split(host, "://")
 	if len(url) != 2 {
@@ -56,7 +59,7 @@ func (rpcInvoker *RpcInvoker) SendMsg(host string, msg *RpcMessage) (*http.Respo
 		url[1],
 		"",
 		string(body),
-		headers,
+		rpcInvoker.RpcHeader,
 		nil,
 		nil,
 		"",

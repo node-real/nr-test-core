@@ -53,9 +53,11 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 
 	argMap := core.Config.TestFilters
 
-	tagInfos := parseTestTagInfos()
 	suiteType := reflect.TypeOf(testSuite)
 	currSuiteName := suiteType.Elem().Name()
+
+	tagInfos := parseTestTagInfos(currSuiteName)
+
 	currSuiteValue := reflect.ValueOf(testSuite).Elem()
 	currSuiteValue.FieldByName("TestName").Set(reflect.ValueOf(t.Name()))
 	methodNum := reflect.TypeOf(testSuite).NumMethod()

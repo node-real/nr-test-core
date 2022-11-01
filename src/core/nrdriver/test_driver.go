@@ -24,7 +24,7 @@ type TestDriver struct {
 	Checker       *checker.Checker
 	Log           *log.Logger
 	Utils         *utils.Utils
-	report        *report.ReportOperator
+	Report        *report.ReportOperator
 	CurrTask      string
 	LogLever      int
 	ConfigPath    string
