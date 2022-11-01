@@ -57,31 +57,35 @@ func getDefaultConfigPath() string {
 	return ""
 }
 
-func parseConfigYml(ymlPath string, runningConfig *RunningConfig) {
-	log.Info("Start to parse config yml file:", ymlPath)
-	if ymlPath == "" {
+func parseConfigYml(ymlName string, runningConfig *RunningConfig) {
+	log.Info("Start to parse config yml file:", ymlName)
+	if ymlName == "" {
 		log.Info("Config yml path is empty.")
 		return
 	}
 	path, err := os.Getwd()
+	var configDir string
+	var configPath string
 	for i := 0; i < 10; i++ {
 		fileEnum, _ := os.ReadDir(path)
-		hasMod := false
+		//hasMod := false
 		for _, f := range fileEnum {
-			if f.Name() == "go.mod" {
-				hasMod = true
+			if f.IsDir() && f.Name() == "config" {
+				//hasMod = true
+				configDir = filepath.Join(path, f.Name())
 				break
 			}
 		}
-		if hasMod {
-			path = filepath.Join(path, ymlPath)
+		if configDir != "" {
+			configPath = filepath.Join(configDir, ymlName)
 			break
 		} else {
-			path = getParentDirectory(path)
+			path = filepath.Dir(path)
 		}
 	}
-	log.Info("The full path of yml file:", ymlPath)
-	fileContent, err := ioutil.ReadFile(path)
+	runningConfig.ConfigPath = configPath
+	log.Info("The full path of yml file:", configPath)
+	fileContent, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		log.Error("Can not read config yaml file:", path)
 	}

@@ -1,7 +1,8 @@
 package core
 
 type RunningConfig struct {
-	LogLevel int
+	ConfigPath string
+	LogLevel   int
 	//RetryCount int
 	//parallelCount int
 	TestFilters map[string]string `yaml:"TestFilters"`

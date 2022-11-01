@@ -121,7 +121,7 @@ func parseTagStr(tagStr string) map[string]string {
 
 func parseTagToCaseInfo(tag TagInfo) *suite.CaseInfo {
 	tagMap := tag.TagMap
-	if tagMap == nil || len(tagMap) == 0 || tag.IsSuite {
+	if tag.IsSuite {
 		return nil
 	}
 	caseInfo := suite.CaseInfo{}
@@ -129,14 +129,16 @@ func parseTagToCaseInfo(tag TagInfo) *suite.CaseInfo {
 	caseInfo.SuiteName = tag.SuiteName
 	caseInfo.TagStr = tag.TagStr
 	caseInfo.IsSkip = tag.IsSkip
-	caseInfo.DataKey = tagMap["$RunDataKey"]
-	parallelCount := tagMap["$ParallelCount"]
-	if parallelCount != "" {
-		count, err := util.ConvertStrToInt(parallelCount)
-		if err != nil {
-			caseInfo.ParallelCount = 1
-		} else {
-			caseInfo.ParallelCount = count
+	if tagMap != nil {
+		caseInfo.DataKey = tagMap["$RunDataKey"]
+		parallelCount := tagMap["$ParallelCount"]
+		if parallelCount != "" {
+			count, err := util.ConvertStrToInt(parallelCount)
+			if err != nil {
+				caseInfo.ParallelCount = 1
+			} else {
+				caseInfo.ParallelCount = count
+			}
 		}
 	}
 	return &caseInfo

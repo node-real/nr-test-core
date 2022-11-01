@@ -8,6 +8,7 @@ import (
 	"github.com/node-real/nr-test-core/src/invokers/rpc"
 	"github.com/node-real/nr-test-core/src/invokers/wss"
 	"github.com/node-real/nr-test-core/src/log"
+	"github.com/node-real/nr-test-core/src/report"
 	"github.com/node-real/nr-test-core/src/utils"
 	"sync"
 )
@@ -23,8 +24,10 @@ type TestDriver struct {
 	Checker       *checker.Checker
 	Log           *log.Logger
 	Utils         *utils.Utils
+	report        *report.ReportOperator
 	CurrTask      string
 	LogLever      int
+	ConfigPath    string
 }
 
 var (

@@ -54,10 +54,32 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 	argMap := core.Config.TestFilters
 
 	tagInfos := parseTestTagInfos()
-	currSuiteName := reflect.TypeOf(testSuite).Elem().Name()
+	suiteType := reflect.TypeOf(testSuite)
+	currSuiteName := suiteType.Elem().Name()
 	currSuiteValue := reflect.ValueOf(testSuite).Elem()
 	currSuiteValue.FieldByName("TestName").Set(reflect.ValueOf(t.Name()))
+	methodNum := reflect.TypeOf(testSuite).NumMethod()
+	hasFilter := len(argMap) > 0
+	for i := 1; i < methodNum; i++ {
+		methodName := suiteType.Method(i).Name
+		hasMethod := false
+		for _, tagI := range tagInfos {
+			if tagI.MethodName == methodName {
+				hasMethod = true
+				break
+			}
+		}
+		if !hasMethod && strings.HasPrefix(methodName, "Test") {
+			tagInfos = append(tagInfos, TagInfo{
+				SuiteName:  currSuiteName,
+				MethodName: methodName,
+				IsSuite:    false,
+				IsSkip:     hasFilter,
+			})
+		}
+	}
 	var currSuiteInfo TagInfo
+	var skipCases []string
 	isSkipSuite := false
 	for index, tagInfo := range tagInfos {
 		if currSuiteName != tagInfo.SuiteName {
@@ -97,7 +119,7 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 		} else {
 			//Method Skip Check
 			if tagInfo.TagMap["skip"] == "true" {
-				//skipCases = append(skipCases, tagInfo.MethodName)
+				skipCases = append(skipCases, tagInfo.MethodName)
 				tagInfo.IsSkip = true
 			} else {
 				for k, v := range argMap {
@@ -117,7 +139,7 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 							}
 						}
 						if !isContainOneV {
-							//skipCases = append(skipCases, tagInfo.MethodName)
+							skipCases = append(skipCases, tagInfo.MethodName)
 							tagInfo.IsSkip = true
 						}
 					}
@@ -132,6 +154,9 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 		log.Infof("Current suite is skipped!")
 		t.Skipf("Current Suite Tags:%s", currSuiteInfo.TagStr) // skip current test suite
 	}
+	//if len(skipCases) >= 1 {
+	log.Info("Skipped cases list:", skipCases)
+	//}
 	var caseInfos []suite.CaseInfo
 	for _, tag := range tagInfos {
 		caseInfo := parseTagToCaseInfo(tag)
