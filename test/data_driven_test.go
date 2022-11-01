@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Tags:: level:p0
+// Tags:: level:p0 net:eth,abc
 type DataSuiteTest struct {
 	nrsuite.NRBaseSuite
 }

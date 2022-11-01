@@ -11,8 +11,6 @@ import (
 type DataOperator struct {
 }
 
-//var log = log.Log
-
 func (dataOp *DataOperator) GetOnlineData(key string) string {
 	//TODO: Robert
 	return ""

@@ -73,6 +73,7 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 				for k, v := range argMap {
 					targetTagStr := tagInfo.TagMap[k]
 					if targetTagStr == "" {
+						tagInfo.IsSkip = true
 						isSkipSuite = true
 						break
 					} else {

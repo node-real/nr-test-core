@@ -3,12 +3,15 @@ package http
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/node-real/nr-test-core/src/utils"
 	"github.com/oliveagle/jsonpath"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
 )
+
+var util = new(utils.Utils)
 
 type HttpInvoker struct {
 }
@@ -20,7 +23,8 @@ func (httpInvoker *HttpInvoker) Call(r Request) (*Response, error) {
 func (httpInvoker *HttpInvoker) CallTimeOut(req Request, timeout time.Duration) (*Response, error) {
 	//change path
 	api := getUrl(req.Protocol+"://"+req.Host, req.Path, req.PathParam)
-	nr, err := http.NewRequest(req.Method, api, strings.NewReader(req.Body))
+	bodyStr0 := util.ToJsonString(req.Body)
+	nr, err := http.NewRequest(req.Method, api, strings.NewReader(bodyStr0))
 	if err != nil {
 		return nil, err
 	}

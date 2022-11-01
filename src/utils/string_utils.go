@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"encoding/json"
+	"github.com/node-real/nr-test-core/src/log"
 	"math/big"
 	"strconv"
 	"strings"
@@ -70,4 +72,13 @@ func (utils *StringUtils) StringToBigInt(string2 string) *big.Int {
 func (utils *StringUtils) StringToHexString(string2 string) string {
 	big1 := utils.StringToBigInt(string2)
 	return utils.BigIntToHexString(big1)
+}
+
+func (utils *StringUtils) ToJsonString(data interface{}) string {
+	dataJson, err := json.Marshal(data)
+	if err != nil {
+		log.Error(err)
+		return ""
+	}
+	return string(dataJson)
 }

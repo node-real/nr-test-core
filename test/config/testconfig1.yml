@@ -2,7 +2,7 @@ LogLevel: 3
 #  - retryCount: 4
 #  - parallelCount: 10
 TestFilters:
-#  - net : eth
+  - net : eth
   - level : p0
 TestParams:
   - host: www.xxxx.com

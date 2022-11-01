@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// Tags:: level:p0 net:eth,abc
 type DataOptTest struct {
 	nrsuite.NRBaseSuite
 }

@@ -5,7 +5,7 @@ type Request struct {
 	Protocol   string
 	Host       string
 	Path       string
-	Body       string
+	Body       interface{}
 	Headers    map[string]string
 	QueryParam map[string]string
 	PathParam  map[string]string

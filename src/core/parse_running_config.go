@@ -23,9 +23,9 @@ func InitConfig() {
 }
 
 func parseRunningConfig() RunningConfig {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
+	//if !flag.Parsed() {
+	//	flag.Parse()
+	//}
 	argList := flag.Args()
 	log.Info("go test args :", argList)
 	rConfig := RunningConfig{}

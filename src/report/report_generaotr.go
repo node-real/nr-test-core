@@ -10,6 +10,13 @@ import (
 type ReportOperator struct {
 }
 
+func (t *ReportOperator) BuildError(msg string, actual, exp interface{}) string {
+	m, _ := json.Marshal(msg)
+	info := fmt.Sprintf("req: %s\nexp: %v\nactul: %v", m, exp, actual)
+	log.Debug(info)
+	return info
+}
+
 func (t *ReportOperator) BuildRpcError(msg *rpc.RpcMessage, actual, exp interface{}) string {
 	m, _ := json.Marshal(msg)
 	info := fmt.Sprintf("req: %s\nexp: %v\nactul: %v", m, exp, actual)
