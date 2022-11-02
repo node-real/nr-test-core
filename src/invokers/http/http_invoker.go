@@ -21,8 +21,14 @@ func (httpInvoker *HttpInvoker) Call(r Request) (*Response, error) {
 }
 
 func (httpInvoker *HttpInvoker) CallTimeOut(req Request, timeout time.Duration) (*Response, error) {
-	//change path
-	api := getUrl(req.Protocol+"://"+req.Host, req.Path, req.PathParam)
+	//build path
+	var api string
+	if req.Protocol == "" && strings.Contains(req.Host, "://") {
+		api = getUrl(req.Host, req.Path, req.PathParam)
+	} else {
+		api = getUrl(req.Protocol+"://"+req.Host, req.Path, req.PathParam)
+	}
+
 	bodyStr0 := util.ToJsonString(req.Body)
 	nr, err := http.NewRequest(req.Method, api, strings.NewReader(bodyStr0))
 	if err != nil {

@@ -22,5 +22,6 @@ func (t *CheckerSuite) Test_diffJson() {
 }
 
 func (t *CheckerSuite) Test_2() {
-	t.Checker.CheckResponseGroupContains(nil, nil)
+	t.Checker.CheckResponseGroupContains(nil, "")
+	//t.Checker.CheckJsonValue()
 }

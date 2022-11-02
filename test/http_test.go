@@ -32,3 +32,19 @@ func (t *HttpTest) Test_Http() {
 	result := t.Checker.CheckJsonValue("{\"code\":20000,\"msg\":\"\",\"data\":{\"product_new_tag_end_time\":\"2200-01-01T00:00:00Z\",\"web3_api_marketplace_new_tag_end_time\":\"2200-01-01T00:00:00Z\"}}\n", res.Body)
 	t.True(result, "")
 }
+
+func (t *HttpTest) Test_Http1() {
+	headers := map[string]string{
+		"Content-Type": "application/json",
+	}
+	res, err := t.Http.Call(http.Request{
+		Host:    "https://meganode-portal.nodereal.io/api",
+		Path:    "/v1/users/00000000-0000-0000-0000-000000000000/styles/component/1",
+		Method:  "GET",
+		Headers: headers,
+	})
+	t.NoError(err)
+	fmt.Println(res.Body)
+	result := t.Checker.CheckJsonValue("{\"code\":20000,\"msg\":\"\",\"data\":{\"product_new_tag_end_time\":\"2200-01-01T00:00:00Z\",\"web3_api_marketplace_new_tag_end_time\":\"2200-01-01T00:00:00Z\"}}\n", res.Body)
+	t.True(result, "")
+}
