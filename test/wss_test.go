@@ -11,7 +11,7 @@ type WssSuiteTest struct {
 	nrsuite.NRBaseSuite
 }
 
-func TestTest(t *testing.T) {
+func TestWssTest(t *testing.T) {
 	nrsuite.Run(t, new(WssSuiteTest))
 }
 

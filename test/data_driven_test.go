@@ -36,11 +36,11 @@ func (t *DataSuiteTest) SetupSuite() {
 // Tags:: $RunDataKey:EthTop200 $ParallelCount:10
 func (t *DataSuiteTest) Test_1(data string, tt *testing.T) {
 	tt.Log("test data:", data)
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 1)
 	assert.True(tt, true, "*****")
 }
 
-// Tags:: $RunDataKey: $ParallelCount:30
+// Tags:: $RunDataKey:abc $ParallelCount:30
 func (t *DataSuiteTest) Test_2(data string, tt *testing.T) {
 	tt.Log("test data:", data)
 	time.Sleep(time.Millisecond * 300)
@@ -49,8 +49,8 @@ func (t *DataSuiteTest) Test_2(data string, tt *testing.T) {
 	}
 }
 
-func (t *DataSuiteTest) Test_3(data string, tt *testing.T) {
-	t.Assertions.True(false)
+func (t *DataSuiteTest) Test_3() {
+	//t.Assertions.True(false)
 }
 
 func (t *DataSuiteTest) AfterTest(suiteName, testName string) {

@@ -1,6 +1,7 @@
 package nrsuite
 
 import (
+	"fmt"
 	"github.com/node-real/nr-test-core/src/checker"
 	"github.com/node-real/nr-test-core/src/core"
 	"github.com/node-real/nr-test-core/src/core/nrdriver"
@@ -58,37 +59,22 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 
 	tagInfos := parseTestTagInfos(currSuiteName)
 
-	currSuiteValue := reflect.ValueOf(testSuite).Elem()
-	currSuiteValue.FieldByName("TestName").Set(reflect.ValueOf(t.Name()))
-	methodNum := reflect.TypeOf(testSuite).NumMethod()
-	hasFilter := len(argMap) > 0
-	for i := 1; i < methodNum; i++ {
-		methodName := suiteType.Method(i).Name
-		hasMethod := false
-		for _, tagI := range tagInfos {
-			if tagI.MethodName == methodName {
-				hasMethod = true
-				break
-			}
-		}
-		if !hasMethod && strings.HasPrefix(methodName, "Test") {
-			tagInfos = append(tagInfos, TagInfo{
-				SuiteName:  currSuiteName,
-				MethodName: methodName,
-				IsSuite:    false,
-				IsSkip:     hasFilter,
-			})
-		}
-	}
 	var currSuiteInfo TagInfo
 	var skipCases []string
 	isSkipSuite := false
+	hasFilter := len(argMap) > 0
+	hasSuiteTag := false
+	currSuiteValue := reflect.ValueOf(testSuite).Elem()
+	currSuiteValue.FieldByName("TestName").Set(reflect.ValueOf(t.Name()))
+	methodNum := reflect.TypeOf(testSuite).NumMethod()
+
 	for index, tagInfo := range tagInfos {
 		if currSuiteName != tagInfo.SuiteName {
 			break
 		}
 		if tagInfo.IsSuite {
 			currSuiteInfo = tagInfo
+			hasSuiteTag = true
 			//Suite Skip Check
 			if tagInfo.TagMap["skip"] == "true" {
 				isSkipSuite = true
@@ -152,13 +138,40 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 	}
 
 	if isSkipSuite {
+		fmt.Println("Current suite tag string:", currSuiteInfo.TagStr)
+		fmt.Println("Current suite is skipped!")
 		log.Info("Current suite tag string:", currSuiteInfo.TagStr)
 		log.Infof("Current suite is skipped!")
 		t.Skipf("Current Suite Tags:%s", currSuiteInfo.TagStr) // skip current test suite
 	}
-	//if len(skipCases) >= 1 {
+
+	// for the no tag test methods, add empty tag info
+	for i := 1; i < methodNum; i++ {
+		methodName := suiteType.Method(i).Name
+		hasMethod := false
+		for _, tagI := range tagInfos {
+			if tagI.MethodName == methodName {
+				hasMethod = true
+				break
+			}
+		}
+		if !hasMethod && strings.HasPrefix(methodName, "Test") {
+			isSkipM := false
+			if hasFilter && !hasSuiteTag {
+				isSkipM = true
+				skipCases = append(skipCases, methodName)
+			}
+			tagInfos = append(tagInfos, TagInfo{
+				SuiteName:  currSuiteName,
+				MethodName: methodName,
+				IsSuite:    false,
+				IsSkip:     isSkipM, //if test method and suite no tags and has filter will skip
+			})
+		}
+	}
+	fmt.Println("Skipped cases list:", skipCases)
 	log.Info("Skipped cases list:", skipCases)
-	//}
+
 	var caseInfos []suite.CaseInfo
 	for _, tag := range tagInfos {
 		caseInfo := parseTagToCaseInfo(tag)
