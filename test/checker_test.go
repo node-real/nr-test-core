@@ -20,3 +20,7 @@ func (t *CheckerSuite) Test_diffJson() {
 	diffMap := t.Checker.DiffJsonReturnDiffMap(json1, json2)
 	t.Assertions.Equal(1, len(diffMap))
 }
+
+func (t *CheckerSuite) Test_2() {
+	t.Checker.CheckResponseGroupContains(nil, nil)
+}

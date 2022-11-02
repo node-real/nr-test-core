@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/google/go-cmp/cmp"
+	"github.com/node-real/nr-test-core/src/invokers/http"
 	"github.com/node-real/nr-test-core/src/log"
 	"github.com/tidwall/gjson"
 	"reflect"
@@ -141,6 +142,23 @@ func (checker *Checker) CheckJsonGroupContains(jsonStrArray []string, except ...
 		result := false
 		for _, json := range jsonStrArray {
 			temp := checker.CheckJsonValue(json, e)
+			if temp {
+				result = true
+				break
+			}
+		}
+		if !result {
+			return result
+		}
+	}
+	return true
+}
+
+func (checker *Checker) CheckResponseGroupContains(res []*http.Response, except ...string) bool {
+	for _, e := range except {
+		result := false
+		for _, r := range res {
+			temp := checker.CheckJsonValue(r.Body, e)
 			if temp {
 				result = true
 				break
