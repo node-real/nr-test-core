@@ -7,7 +7,7 @@ require (
 	github.com/stretchr/testify v1.7.2
 )
 
-replace github.com/stretchr/testify v1.7.2 => github.com/robertw07/testify v0.0.5
+replace github.com/stretchr/testify v1.7.2 => github.com/robertw07/testify v0.0.7
 
 require (
 	github.com/ethereum/go-ethereum v1.10.25
