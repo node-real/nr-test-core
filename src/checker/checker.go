@@ -171,6 +171,36 @@ func (checker *Checker) CheckResponseGroupContains(res []*http.Response, except 
 	return true
 }
 
+func (checker *Checker) CheckTowMapKeyContain(exp, actual map[string]interface{}) (bool, map[string]interface{}) {
+	diffs0 := map[string]interface{}{}
+	for k, value := range exp {
+		_, ok := actual[k]
+		if !ok {
+			diffs0[k] = value
+		}
+	}
+	result := true
+	if len(diffs0) > 0 {
+		result = false
+	}
+	return result, diffs0
+}
+
+func (checker *Checker) CheckTowMapValueContain(exp, actual map[string]interface{}) (bool, map[string]interface{}) {
+	diffs0 := map[string]interface{}{}
+	for k, value := range exp {
+		actValue, ok := actual[k]
+		if !ok || checker.IsEquals(actValue, value) {
+			diffs0[k] = actValue
+		}
+	}
+	result := true
+	if len(diffs0) > 0 {
+		result = false
+	}
+	return result, diffs0
+}
+
 // CheckJsonKeyValueOpt check json key and value ,filter some key
 func (checker *Checker) CheckJsonKeyValueOpt(exp, actual string, opt []string) bool {
 	diffs := map[string][]interface{}{}

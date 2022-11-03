@@ -10,6 +10,8 @@ require (
 replace github.com/stretchr/testify v1.7.2 => github.com/robertw07/testify v0.0.7
 
 require (
+	github.com/aws/aws-sdk-go v1.44.129
+	github.com/aws/aws-sdk-go-v2/service/sts v1.1.1
 	github.com/ethereum/go-ethereum v1.10.25
 	github.com/google/go-cmp v0.5.5
 	github.com/gorilla/websocket v1.5.0
@@ -20,10 +22,14 @@ require (
 )
 
 require (
+	github.com/aws/aws-sdk-go-v2 v1.2.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.0.2 // indirect
+	github.com/aws/smithy-go v1.1.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tidwall/match v1.1.1 // indirect

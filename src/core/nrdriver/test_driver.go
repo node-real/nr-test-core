@@ -10,6 +10,7 @@ import (
 	"github.com/node-real/nr-test-core/src/log"
 	"github.com/node-real/nr-test-core/src/report"
 	"github.com/node-real/nr-test-core/src/utils"
+	"os"
 	"sync"
 )
 
@@ -28,6 +29,7 @@ type TestDriver struct {
 	CurrTask      string
 	LogLever      int
 	ConfigPath    string
+	Regain        string
 }
 
 var (
@@ -52,6 +54,7 @@ func Driver() *TestDriver {
 		driver.Wss = &wss.WssInvoker{}
 		driver.Checker = &checker.Checker{}
 		driver.Utils = &utils.Utils{}
+		driver.Regain = os.Getenv("AWS_REGION")
 		core.InitConfig()
 		driver.RunningConfig = core.Config
 		initDriver()
