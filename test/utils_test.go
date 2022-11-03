@@ -39,3 +39,9 @@ func (t *UtilsTest) Test_2() {
 	strData := "{\"Test10\":\"123\",\"Test2\":\"456\",\"Test3\":\"789\"}"
 	fmt.Println(strData)
 }
+
+func (t *UtilsTest) Test_3() {
+	data := "{\"Test10\":\"123\",\"Test2\":\"456\",\"Test3\":\"789\"}"
+	dataStr := t.Utils.ToJsonString(data)
+	t.Assert().Equal(dataStr, data)
+}

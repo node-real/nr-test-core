@@ -8,6 +8,7 @@ import (
 	"github.com/node-real/nr-test-core/src/invokers/http"
 	"github.com/node-real/nr-test-core/src/log"
 	"github.com/tidwall/gjson"
+	http1 "net/http"
 	"reflect"
 	"strings"
 )
@@ -171,12 +172,42 @@ func (checker *Checker) CheckResponseGroupContains(res []*http.Response, except 
 	return true
 }
 
+func (checker *Checker) CheckTowHeaderKeyContain(exp, actual http1.Header) (bool, map[string][]string) {
+	diffs0 := map[string][]string{}
+	for k, value := range exp {
+		_, ok := actual[k]
+		if !ok {
+			diffs0[k] = value
+		}
+	}
+	result := true
+	if len(diffs0) > 0 {
+		result = false
+	}
+	return result, diffs0
+}
+
 func (checker *Checker) CheckTowMapKeyContain(exp, actual map[string]interface{}) (bool, map[string]interface{}) {
 	diffs0 := map[string]interface{}{}
 	for k, value := range exp {
 		_, ok := actual[k]
 		if !ok {
 			diffs0[k] = value
+		}
+	}
+	result := true
+	if len(diffs0) > 0 {
+		result = false
+	}
+	return result, diffs0
+}
+
+func (checker *Checker) CheckTowHeaderValueContain(exp, actual http1.Header) (bool, map[string][]string) {
+	diffs0 := map[string][]string{}
+	for k, value := range exp {
+		actValue, ok := actual[k]
+		if !ok || checker.IsEquals(actValue, value) {
+			diffs0[k] = actValue
 		}
 	}
 	result := true

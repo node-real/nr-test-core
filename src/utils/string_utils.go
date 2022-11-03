@@ -75,6 +75,10 @@ func (utils *StringUtils) StringToHexString(string2 string) string {
 }
 
 func (utils *StringUtils) ToJsonString(data interface{}) string {
+	dataStr, ok := data.(string)
+	if ok {
+		return dataStr
+	}
 	dataJson, err := json.Marshal(data)
 	if err != nil {
 		log.Error(err)
