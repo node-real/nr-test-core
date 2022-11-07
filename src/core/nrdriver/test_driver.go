@@ -1,6 +1,7 @@
 package nrdriver
 
 import (
+	"github.com/node-real/nr-test-core/src/awswrapper"
 	"github.com/node-real/nr-test-core/src/checker"
 	"github.com/node-real/nr-test-core/src/core"
 	"github.com/node-real/nr-test-core/src/data"
@@ -10,7 +11,6 @@ import (
 	"github.com/node-real/nr-test-core/src/log"
 	"github.com/node-real/nr-test-core/src/report"
 	"github.com/node-real/nr-test-core/src/utils"
-	"os"
 	"sync"
 )
 
@@ -30,6 +30,7 @@ type TestDriver struct {
 	LogLever      int
 	ConfigPath    string
 	Regain        string
+	IsLocal       bool
 }
 
 var (
@@ -54,7 +55,8 @@ func Driver() *TestDriver {
 		driver.Wss = &wss.WssInvoker{}
 		driver.Checker = &checker.Checker{}
 		driver.Utils = &utils.Utils{}
-		driver.Regain = os.Getenv("AWS_REGION")
+		driver.Regain = awswrapper.GetAwsRegion()
+		driver.IsLocal = awswrapper.IsLocal()
 		core.InitConfig()
 		driver.RunningConfig = core.Config
 		initDriver()

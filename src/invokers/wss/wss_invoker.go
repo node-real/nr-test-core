@@ -129,6 +129,36 @@ func (wss *WssInvoker) GetMsg(host string, msg *rpc.RpcMessage, count int) ([]st
 	return result, err
 }
 
+func (wss *WssInvoker) GetMsgWithTimeout(host string, msg *rpc.RpcMessage, count int, timeout int) ([]string, error) {
+	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
+	if err != nil {
+		log.Fatal("GetIntervalWsMsg.dial:", err)
+	}
+
+	defer webClient.Close()
+
+	err = webClient.WriteJSON(msg)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	result := []string{}
+
+	// todo eg  1000 when more than  30s
+	err = webClient.SetReadDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
+	for i := 0; i < count; i++ {
+		_, message, err := webClient.ReadMessage()
+		if err != nil {
+			log.Error("GetIntervalWsMsg.read:", err)
+			return result, err
+		}
+		log.Debugf("Received: %s.\n", message)
+		result = append(result, string(message))
+
+	}
+	return result, err
+}
+
 func (wss *WssInvoker) SendBatchMsg(host string, req []*rpc.RpcMessage, retry int) (*http.Response, error) {
 	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
 	if err != nil {
