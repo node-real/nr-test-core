@@ -28,8 +28,7 @@ type TestDriver struct {
 	Report        *report.ReportOperator
 	CurrTask      string
 	LogLever      int
-	ConfigPath    string
-	Regain        string
+	Region        string
 	IsLocal       bool
 }
 
@@ -55,7 +54,7 @@ func Driver() *TestDriver {
 		driver.Wss = &wss.WssInvoker{}
 		driver.Checker = &checker.Checker{}
 		driver.Utils = &utils.Utils{}
-		driver.Regain = awswrapper.GetAwsRegion()
+		driver.Region = awswrapper.GetAwsRegion()
 		driver.IsLocal = awswrapper.IsLocal()
 		core.InitConfig()
 		driver.RunningConfig = core.Config

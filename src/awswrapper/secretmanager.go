@@ -9,15 +9,17 @@ import (
 	"github.com/node-real/nr-test-core/src/log"
 )
 
-func GetSecretValue(secretId string) string {
+func GetSecretValue(secretKey string) string {
+	if secretKey == "" {
+		log.Warnf("Invoke GetSecretValue method, but the param secretKey is empty")
+		return ""
+	}
 	cred := getAwsCredentials()
 	akId := cred.AccessKeyId
 	ak := cred.SecretAccessKey
 	sToken := cred.SessionToken
 	awsEnv := GetAwsRegion()
-	if awsEnv == "" {
-		awsEnv = "us-east-1"
-	}
+
 	sess := session.Must(session.NewSession(&aws.Config{
 		Region:      aws.String(awsEnv),
 		Credentials: credentials.NewStaticCredentials(*akId, *ak, *sToken),
@@ -25,7 +27,7 @@ func GetSecretValue(secretId string) string {
 
 	svc := secretsmanager.New(sess)
 	input := &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(secretId),
+		SecretId: aws.String(secretKey),
 	}
 	result, err := svc.GetSecretValue(input)
 	if err != nil {
