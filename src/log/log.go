@@ -71,7 +71,8 @@ var Log *Logger
 
 func init() {
 	logFile := newOutputLogFile()
-	InitLog(InfoLog, logFile)
+	InitLog(InfoLog, logFile, os.Stdout)
+	//InitLog(InfoLog, logFile)
 }
 
 func LevelName(level int) string {
