@@ -33,6 +33,19 @@ func (t *DataSuiteTest) SetupSuite() {
 	//t.TestData["Tokens"] = t.DataOperator.ReadFileLines("./data/token.log")
 }
 
+// 验证并发协程异常退出，是否会导致测试程序退出
+// Tags:: $RunDataKey:EthTop200 $ParallelCount:10
+func (t *DataSuiteTest) Test_0(data string, tt *testing.T) {
+	//模拟数组越界
+	array := []string{""}
+
+	tt.Log(array[10])
+
+	//tt.Log("test data:", data)
+	//time.Sleep(time.Second * 1)
+	//assert.True(tt, true, "*****")
+}
+
 // Tags:: $RunDataKey:EthTop200 $ParallelCount:10
 func (t *DataSuiteTest) Test_1(data string, tt *testing.T) {
 	tt.Log("test data:", data)

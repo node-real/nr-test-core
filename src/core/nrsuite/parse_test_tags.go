@@ -56,7 +56,7 @@ func parseTestTagInfos(suiteName string) []TagInfo {
 								tagInfo := TagInfo{
 									TagStr: cLine.Text,
 									TagMap: parseTagStr(cLine.Text),
-									Line:   fset.File(f.Pos()).Line(c.Pos()),
+									Line:   fset.File(f.Pos()).Line(cLine.Pos()),
 								}
 								tagInfos = append(tagInfos, tagInfo)
 							}
