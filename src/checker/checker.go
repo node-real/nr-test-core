@@ -138,6 +138,26 @@ func (checker *Checker) CheckJsonKVReturnDiffMap(exp, actual string) (bool, map[
 	return len(diffs0) == 0 && len(diffs1) == 0, diffs0, diffs1
 }
 
+func (Checker *Checker) CheckJsonKVReturnDiffStr(exp, actual string) string {
+	var json1 map[string]interface{}
+	var json2 map[string]interface{}
+	json.Unmarshal([]byte(exp), &json1)
+	json.Unmarshal([]byte(actual), &json2)
+	_, diffStr := jsonCompare(json1, json2)
+	return diffStr
+}
+
+//func (checker *Checker) CheckJsonKVWithFieldsMapping(exp, actual string, mapping map[string]string) bool {
+//	result, diff0, diff1 := checker.CheckJsonKVReturnDiffMap(exp, actual)
+//	if !result {
+//		for key, value := range diff0 {
+//
+//		}
+//	} else {
+//		return true
+//	}
+//}
+
 func (checker *Checker) CheckJsonGroupContains(jsonStrArray []string, except ...string) bool {
 	for _, e := range except {
 		result := false
@@ -263,24 +283,24 @@ func (checker *Checker) CheckJsonKeyValueOpt(exp, actual string, opt []string) b
 	return len(diffs) == 0 && len(diffs1) == 0
 }
 
-func (checker *Checker) DiffJsonReturnDiffMap(jsonStr1 string, jsonStr2 string) map[string][]interface{} {
-	diffMap := map[string][]interface{}{}
-	return checker.diffJson(jsonStr1, jsonStr2, diffMap)
-}
+//func (checker *Checker) DiffJsonReturnDiffMap(jsonStr1 string, jsonStr2 string) map[string][]interface{} {
+//	diffMap := map[string][]interface{}{}
+//	return checker.diffJson(jsonStr1, jsonStr2, diffMap)
+//}
 
-func (checker *Checker) DiffJsonReturnDiffStr(jsonStr1 string, jsonStr2 string) string {
-	var json1 map[string]interface{}
-	var json2 map[string]interface{}
-	json.Unmarshal([]byte(jsonStr1), &json1)
-	json.Unmarshal([]byte(jsonStr2), &json2)
-	_, diffStr := jsonCompare(json1, json2)
-	return diffStr
-}
+//func (checker *Checker) DiffJsonReturnDiffStr(jsonStr1 string, jsonStr2 string) string {
+//	var json1 map[string]interface{}
+//	var json2 map[string]interface{}
+//	json.Unmarshal([]byte(jsonStr1), &json1)
+//	json.Unmarshal([]byte(jsonStr2), &json2)
+//	_, diffStr := jsonCompare(json1, json2)
+//	return diffStr
+//}
 
-func (checker *Checker) DiffJsonWithPrecision(jsonStr1 string, jsonStr2 string) string {
-	//TODO: to robert
-	return ""
-}
+//func (checker *Checker) DiffJsonWithPrecision(jsonStr1 string, jsonStr2 string) string {
+//	//TODO: to robert
+//	return ""
+//}
 
 func (checker *Checker) DiffList(key, jstr0, jstr1 string, diffs map[string][]interface{}) map[string][]interface{} {
 	json0 := gjson.Parse(jstr0).Array()

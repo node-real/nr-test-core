@@ -37,3 +37,7 @@ func (t *BaseSuiteTest) Test_4() {
 func (t *BaseSuiteTest) Test_5() {
 	fmt.Println("*****2")
 }
+
+func (t *BaseSuiteTest) Test_Init_0() {
+
+}

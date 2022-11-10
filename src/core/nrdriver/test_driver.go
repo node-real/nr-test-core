@@ -27,7 +27,6 @@ type TestDriver struct {
 	Utils         *utils.Utils
 	Report        *report.ReportOperator
 	CurrTask      string
-	LogLever      int
 	Region        string
 	IsLocal       bool
 }

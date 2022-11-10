@@ -13,6 +13,8 @@ import (
 	"testing"
 )
 
+var once = sync.Once{}
+
 type NRBaseSuite struct {
 	suite.Suite
 	nrdriver.TestDriver
@@ -20,6 +22,15 @@ type NRBaseSuite struct {
 	ResultData map[string][]string
 	TestName   string
 	mu         sync.Mutex
+}
+
+// InitTestTask initialize the test at the start of the test task
+func (baseSuite *NRBaseSuite) InitTestTask(funcs ...func()) {
+	once.Do(func() {
+		for _, currFunc := range funcs {
+			currFunc()
+		}
+	})
 }
 
 func (baseSuite *NRBaseSuite) SetupSuite() {
