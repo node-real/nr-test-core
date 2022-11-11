@@ -103,7 +103,7 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 						checker := new(checker.Checker)
 						isContainOneV := false
 						for _, aValue := range argValues {
-							if checker.IsContainsInArray(tagValues, aValue) {
+							if checker.IsContainsInStrArray(tagValues, aValue) {
 								isContainOneV = true
 								break
 							}
@@ -132,7 +132,7 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 						checker := new(checker.Checker)
 						isContainOneV := false
 						for _, aValue := range argValues {
-							if checker.IsContainsInArray(tagValues, aValue) {
+							if checker.IsContainsInStrArray(tagValues, aValue) {
 								isContainOneV = true
 								break
 							}

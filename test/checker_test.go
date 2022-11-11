@@ -25,3 +25,8 @@ func (t *CheckerSuite) Test_2() {
 	t.Checker.CheckResponseGroupContains(nil, "")
 	//t.Checker.CheckJsonValue()
 }
+
+func (t *CheckerSuite) Test_Contains_1() {
+	array := []int{1, 2, 3}
+	t.Checker.IsContains(array, 1)
+}

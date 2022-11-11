@@ -10,13 +10,6 @@ import (
 )
 
 type DataOperator struct {
-	awsRegion  string
-	awsRoleARN string
-	awsProfile string
-}
-
-func New(region, roleARN, profile string) {
-
 }
 
 func (dataOp *DataOperator) GetSecretData(key string) string {
@@ -87,10 +80,10 @@ func (dataOp *DataOperator) ReadCustomCaseData(filePath string) []CustomCaseData
 	return cases
 }
 
-func (dataOp *DataOperator) ReadCustomFileDatas(dirPath string) []map[string]string {
-	//TODO:Robert
-	return nil
-}
+//func (dataOp *DataOperator) ReadCustomFileDatas(dirPath string) []map[string]string {
+//	//TODO:Robert
+//	return nil
+//}
 
 func (dataOp *DataOperator) ReadFileLines(filePath string) []string {
 	file, err := os.Open(filePath)
