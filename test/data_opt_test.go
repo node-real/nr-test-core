@@ -15,6 +15,11 @@ func TestDataOptSuite(t *testing.T) {
 	nrsuite.Run(t, new(DataOptTest))
 }
 
+func (t *DataOptTest) Test_0() {
+	data := t.DataOperator.ReadFileLines("./data/data.txt")
+	fmt.Println(data)
+}
+
 func (t *DataOptTest) Test_1() {
 	data := t.DataOperator.ReadCustomCaseData("./data/custom_data")
 	fmt.Println(data)

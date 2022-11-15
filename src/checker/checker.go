@@ -32,10 +32,11 @@ func (checker *Checker) IsContainsInStr(orgStr, subStr string) bool {
 	return false
 }
 
-// IsContainsInStrArray verifies that the items array contains item0 or not
+// Deprecated
+// IsContainsInStrArray verifies that the string items array contains item0 string or not
 // For example:
 //
-//	array := []int{1,2,3}
+//	array := []int{d1,2,3}
 //	s.Checker.IsContainsItemsInArray(array, 1)
 func (c *Checker) IsContainsInStrArray(items []string, item0 string) bool {
 	for _, eachItem := range items {
@@ -46,13 +47,60 @@ func (c *Checker) IsContainsInStrArray(items []string, item0 string) bool {
 	return false
 }
 
+// IsContains verifies that the  items (string, int, float) array contains item0 (string, int, float)  or not
+// For example:
+//
+//	 1.
+//			array := []int{1,2,3}
+//			s.Checker.IsContains(array, 1)
+//
+//	  2.
+//			array1 := []string{"1", "2", "3"}
+//			t.Assertions.True(t.Checker.IsContains(array1, "1"))
+//	  3.
+//			array3 := []float64{1.2, 3.1}
+//			t.Assertions.True(t.Checker.IsContains(array3, 1.2))
 func (c *Checker) IsContains(items interface{}, item0 interface{}) bool {
-	ok := items.([]int)
-	fmt.Println(ok)
-	//for _ item := range ok {
-	//
-	//}
-	return false
+	result := false
+	item0V := reflect.TypeOf(item0)
+	switch item0V.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		item0 = reflect.ValueOf(item0).Int()
+		break
+	case reflect.Float32, reflect.Float64:
+		item0 = reflect.ValueOf(item0).Float()
+		break
+	case reflect.Interface:
+		item0 = reflect.ValueOf(item0).Interface()
+		break
+	}
+	switch reflect.TypeOf(items).Kind() {
+	case reflect.Slice, reflect.Array:
+		s := reflect.ValueOf(items)
+		for i := 0; i < s.Len(); i++ {
+			item := s.Index(i)
+			var itemValue interface{}
+			switch item.Kind() {
+			case reflect.String:
+				itemValue = item.String()
+				break
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				itemValue = item.Int()
+				break
+			case reflect.Float32, reflect.Float64:
+				itemValue = item.Float()
+				break
+			case reflect.Interface:
+				itemValue = item.Interface()
+				break
+			}
+			if itemValue != nil && c.IsEquals(itemValue, item0) {
+				result = true
+				break
+			}
+		}
+	}
+	return result
 }
 
 //func (c *Checker) IsContainsInIntArray(items []int, item0 int) bool {

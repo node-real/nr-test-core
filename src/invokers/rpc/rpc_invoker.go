@@ -33,7 +33,7 @@ func (rpcInvoker *RpcInvoker) NewMsg(method string, params ...interface{}) (*Rpc
 	return msg, nil
 }
 
-// SendMsg call  http util
+// SendMsg send rpc message
 func (rpcInvoker *RpcInvoker) SendMsg(host string, msg *RpcMessage) (*http.Response, error) {
 	if host == "" {
 		log.Error("The rpc request host is empty")
@@ -102,7 +102,7 @@ func (rpcInvoker *RpcInvoker) SendBatchMsg(host string, msg []*RpcMessage) (*htt
 	return res, nil
 }
 
-func (rpcInvoker *RpcInvoker) ToMsgParams(msg ethereum.CallMsg) interface{} {
+func (rpcInvoker *RpcInvoker) NewMsgParamsFromEthMsg(msg ethereum.CallMsg) interface{} {
 	params := map[string]interface{}{
 		"from": msg.From,
 		"to":   msg.To,
@@ -122,7 +122,7 @@ func (rpcInvoker *RpcInvoker) ToMsgParams(msg ethereum.CallMsg) interface{} {
 	return params
 }
 
-func (rpcInvoker *RpcInvoker) ToFilterParams(q ethereum.FilterQuery) (interface{}, error) {
+func (rpcInvoker *RpcInvoker) NewMsgParamsFromEthFilterParams(q ethereum.FilterQuery) interface{} {
 	arg := map[string]interface{}{
 		"address": q.Addresses,
 		"topics":  q.Topics,
@@ -145,10 +145,10 @@ func (rpcInvoker *RpcInvoker) ToFilterParams(q ethereum.FilterQuery) (interface{
 	} else {
 		arg["toBlock"] = hexutil.EncodeBig(q.ToBlock)
 	}
-	return arg, nil
+	return arg
 }
 
-func (rpcInvoker *RpcInvoker) ToFilterParamsOptional(q ethereum.FilterQuery) (interface{}, error) {
+func (rpcInvoker *RpcInvoker) NewMsgParamsFromEthFilterOpt(q ethereum.FilterQuery) interface{} {
 	//0-latest
 	//-1-pending
 	//-2-earliest
@@ -186,5 +186,20 @@ func (rpcInvoker *RpcInvoker) ToFilterParamsOptional(q ethereum.FilterQuery) (in
 	} else {
 		arg["toBlock"] = hexutil.EncodeBig(q.ToBlock)
 	}
-	return arg, nil
+	return arg
+}
+
+// Deprecated
+func (rpcInvoker *RpcInvoker) ToMsgParams(msg ethereum.CallMsg) interface{} {
+	return rpcInvoker.NewMsgParamsFromEthMsg(msg)
+}
+
+// Deprecated
+func (rpcInvoker *RpcInvoker) ToFilterParams(q ethereum.FilterQuery) interface{} {
+	return rpcInvoker.NewMsgParamsFromEthFilterParams(q)
+}
+
+// Deprecated
+func (rpcInvoker *RpcInvoker) ToFilterParamsOptional(q ethereum.FilterQuery) interface{} {
+	return rpcInvoker.NewMsgParamsFromEthFilterOpt(q)
 }

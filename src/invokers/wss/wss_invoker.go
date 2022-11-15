@@ -8,10 +8,8 @@ import (
 	"time"
 )
 
-//var log = log.Log
-
 type WssInvoker struct {
-	Channel WssChannel
+	//Channel WssChannel
 }
 
 func (wss *WssInvoker) SendMsg(host string, msg *rpc.RpcMessage) (*http.Response, error) {
@@ -99,66 +97,6 @@ func (wss *WssInvoker) SendMsgAndCloseWhenSub(host string, msg *rpc.RpcMessage, 
 	}
 }
 
-func (wss *WssInvoker) GetMsg(host string, msg *rpc.RpcMessage, count int) ([]string, error) {
-	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
-	if err != nil {
-		log.Fatal("dial:", err)
-	}
-
-	defer webClient.Close()
-
-	err = webClient.WriteJSON(msg)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-	result := []string{}
-
-	interval := 30 * time.Second
-	err = webClient.SetReadDeadline(time.Now().Add(interval))
-	for i := 0; i < count; i++ {
-		_, message, err := webClient.ReadMessage()
-		if err != nil {
-			log.Error("read:", err)
-			return result, err
-		}
-		log.Debugf("Received: %s.\n", message)
-		result = append(result, string(message))
-
-	}
-	return result, err
-}
-
-func (wss *WssInvoker) GetMsgWithTimeout(host string, msg *rpc.RpcMessage, count int, timeout int) ([]string, error) {
-	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
-	if err != nil {
-		log.Fatal("GetIntervalWsMsg.dial:", err)
-	}
-
-	defer webClient.Close()
-
-	err = webClient.WriteJSON(msg)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-	result := []string{}
-
-	// todo eg  1000 when more than  30s
-	err = webClient.SetReadDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
-	for i := 0; i < count; i++ {
-		_, message, err := webClient.ReadMessage()
-		if err != nil {
-			log.Error("GetIntervalWsMsg.read:", err)
-			return result, err
-		}
-		log.Debugf("Received: %s.\n", message)
-		result = append(result, string(message))
-
-	}
-	return result, err
-}
-
 func (wss *WssInvoker) SendBatchMsg(host string, req []*rpc.RpcMessage, retry int) (*http.Response, error) {
 	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
 	if err != nil {
@@ -227,7 +165,7 @@ func (wss *WssInvoker) SendParallel(host string, req []*rpc.RpcMessage) ([]*http
 	}
 }
 
-func SendParallelWithBatch(host string, req []*rpc.RpcMessage, batch [][]*rpc.RpcMessage) ([]*http.Response, error) {
+func (wss *WssInvoker) SendParallelWithBatch(host string, req []*rpc.RpcMessage, batch [][]*rpc.RpcMessage) ([]*http.Response, error) {
 	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
 	if err != nil {
 		return nil, err
@@ -260,4 +198,64 @@ func SendParallelWithBatch(host string, req []*rpc.RpcMessage, batch [][]*rpc.Rp
 		}
 
 	}
+}
+
+func (wss *WssInvoker) GetMsg(host string, msg *rpc.RpcMessage, count int) ([]string, error) {
+	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
+	if err != nil {
+		log.Fatal("dial:", err)
+	}
+
+	defer webClient.Close()
+
+	err = webClient.WriteJSON(msg)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	result := []string{}
+
+	interval := 30 * time.Second
+	err = webClient.SetReadDeadline(time.Now().Add(interval))
+	for i := 0; i < count; i++ {
+		_, message, err := webClient.ReadMessage()
+		if err != nil {
+			log.Error("read:", err)
+			return result, err
+		}
+		log.Debugf("Received: %s.\n", message)
+		result = append(result, string(message))
+
+	}
+	return result, err
+}
+
+func (wss *WssInvoker) GetMsgWithTimeout(host string, msg *rpc.RpcMessage, count int, timeout int) ([]string, error) {
+	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
+	if err != nil {
+		log.Fatal("GetIntervalWsMsg.dial:", err)
+	}
+
+	defer webClient.Close()
+
+	err = webClient.WriteJSON(msg)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	result := []string{}
+
+	// todo eg  1000 when more than  30s
+	err = webClient.SetReadDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
+	for i := 0; i < count; i++ {
+		_, message, err := webClient.ReadMessage()
+		if err != nil {
+			log.Error("GetIntervalWsMsg.read:", err)
+			return result, err
+		}
+		log.Debugf("Received: %s.\n", message)
+		result = append(result, string(message))
+
+	}
+	return result, err
 }

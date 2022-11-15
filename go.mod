@@ -17,6 +17,7 @@ require (
 	github.com/ethereum/go-ethereum v1.10.25
 	github.com/google/go-cmp v0.5.8
 	github.com/gorilla/websocket v1.5.0
+	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/cobra v0.0.3
 	github.com/tidwall/gjson v1.14.3
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4

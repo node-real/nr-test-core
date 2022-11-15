@@ -67,6 +67,7 @@ func (httpInvoker *HttpInvoker) CallTimeOut(req Request, timeout time.Duration) 
 	return res, nil
 }
 
+// Deprecated
 // CallSplitUrl coudle set url with Protocol and call the method
 func (httpInvoker *HttpInvoker) CallSplitUrl(r Request) (*Response, error) {
 	r.Protocol = strings.Split(r.Host, "://")[0]
@@ -74,6 +75,7 @@ func (httpInvoker *HttpInvoker) CallSplitUrl(r Request) (*Response, error) {
 	return httpInvoker.CallTimeOut(r, 360*time.Second)
 }
 
+// Deprecated
 func (httpInvoker *HttpInvoker) GetBodyParam(r *Response, jpath string) string {
 	var json_data interface{}
 	json.Unmarshal([]byte(r.Body), &json_data)

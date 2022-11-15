@@ -29,19 +29,24 @@ func (t *UtilsTest) Test_2() {
 	fmt.Println(dataStr)
 
 	mapData := map[string]string{
-		"Test1": "123",
-		"Test2": "456",
-		"Test3": "789",
+		"Path":   "abc",
+		"Method": "GET",
+		"Host":   "123",
 	}
-	dataStr = t.Utils.ToJsonString(mapData)
+	dataStr1 := t.Utils.ToJsonString(mapData)
 	fmt.Println(dataStr)
 
-	strData := "{\"Test10\":\"123\",\"Test2\":\"456\",\"Test3\":\"789\"}"
-	fmt.Println(strData)
+	t.Assertions.False(t.Checker.CheckJsonValue(dataStr, dataStr1))
 }
 
 func (t *UtilsTest) Test_3() {
 	data := "{\"Test10\":\"123\",\"Test2\":\"456\",\"Test3\":\"789\"}"
 	dataStr := t.Utils.ToJsonString(data)
 	t.Assert().Equal(dataStr, data)
+}
+
+func (t *UtilsTest) Test_4() {
+	v := t.Utils.RandomInt(110, 120)
+	fmt.Println(v)
+	t.Assertions.True(v > 110 && v < 120)
 }
