@@ -36,6 +36,8 @@ func (baseSuite *NRBaseSuite) InitTestTask(funcs ...func()) {
 func (baseSuite *NRBaseSuite) SetupSuite() {
 	log.Infof("=== Setup Test Suite: %s ===", baseSuite.TestName)
 	baseSuite.TestDriver = *nrdriver.Driver()
+	baseSuite.TestData = map[string][]string{}
+	baseSuite.ResultData = map[string][]string{}
 }
 
 func (baseSuite *NRBaseSuite) TearDownSuite() {

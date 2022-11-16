@@ -48,3 +48,7 @@ func (t *CheckerSuite) Test_Contains_4() {
 	array3 := []float64{1.2, 3.1}
 	t.Assertions.True(t.Checker.IsContains(array3, 1.2))
 }
+
+func (t *CheckerSuite) Test_Contains_5() {
+	t.Assertions.True(t.Checker.IsContains("abc", "a"))
+}

@@ -50,16 +50,17 @@ func (c *Checker) IsContainsInStrArray(items []string, item0 string) bool {
 // IsContains verifies that the  items (string, int, float) array contains item0 (string, int, float)  or not
 // For example:
 //
-//	 1.
-//			array := []int{1,2,3}
-//			s.Checker.IsContains(array, 1)
-//
-//	  2.
-//			array1 := []string{"1", "2", "3"}
-//			t.Assertions.True(t.Checker.IsContains(array1, "1"))
-//	  3.
-//			array3 := []float64{1.2, 3.1}
-//			t.Assertions.True(t.Checker.IsContains(array3, 1.2))
+//	   1.
+//				array := []int{1,2,3}
+//				s.Checker.IsContains(array, 1)
+//	   2.
+//				array1 := []string{"1", "2", "3"}
+//				t.Assertions.True(t.Checker.IsContains(array1, "1"))
+//	   3.
+//				array3 := []float64{1.2, 3.1}
+//				t.Assertions.True(t.Checker.IsContains(array3, 1.2))
+//	   4.
+//				t.Assertions.True(t.Checker.IsContains("abc", "a"))
 func (c *Checker) IsContains(items interface{}, item0 interface{}) bool {
 	result := false
 	item0V := reflect.TypeOf(item0)
@@ -72,6 +73,9 @@ func (c *Checker) IsContains(items interface{}, item0 interface{}) bool {
 		break
 	case reflect.Interface:
 		item0 = reflect.ValueOf(item0).Interface()
+		break
+	case reflect.String:
+		item0 = reflect.ValueOf(item0).String()
 		break
 	}
 	switch reflect.TypeOf(items).Kind() {
@@ -99,6 +103,11 @@ func (c *Checker) IsContains(items interface{}, item0 interface{}) bool {
 				break
 			}
 		}
+		break
+	case reflect.String:
+		s := reflect.ValueOf(items)
+		result = strings.Contains(s.String(), item0.(string))
+		break
 	}
 	return result
 }
