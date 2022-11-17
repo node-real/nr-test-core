@@ -18,8 +18,10 @@ func GetSecretValue(secretKey string) string {
 	akId := cred.AccessKeyId
 	ak := cred.SecretAccessKey
 	sToken := cred.SessionToken
-	awsEnv := GetAwsRegion()
-
+	//awsEnv := GetAwsRegion()
+	//if awsEnv == "" {
+	awsEnv := "us-east-1"
+	//}
 	sess := session.Must(session.NewSession(&aws.Config{
 		Region:      aws.String(awsEnv),
 		Credentials: credentials.NewStaticCredentials(*akId, *ak, *sToken),
