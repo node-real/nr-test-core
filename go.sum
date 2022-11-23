@@ -60,8 +60,8 @@ github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prometheus/tsdb v0.7.1 h1:YZcsG11NqnK4czYLrWd9mpEuAJIHVQLwdrleYfszMAA=
-github.com/robertw07/testify v0.0.8 h1:Dx6b+QdaUTOj81U+T/Uyksb4y/euk8GUms0k6b02RTk=
-github.com/robertw07/testify v0.0.8/go.mod h1:nn0qEDGZhpqtQLl7OpAknz2qVb+UhbE3MIHSZ3O0AlE=
+github.com/robertw07/testify v0.0.10 h1:I7NsinouAyA0HMFp+l8w3RdSye4swc8S02+Ionf9BqU=
+github.com/robertw07/testify v0.0.10/go.mod h1:nn0qEDGZhpqtQLl7OpAknz2qVb+UhbE3MIHSZ3O0AlE=
 github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible h1:Bn1aCHHRnjv4Bl16T8rcaFjYSrGrIZvpiGO6P3Q4GpU=
 github.com/shopspring/decimal v1.3.1 h1:2Usl1nmF/WZucqkFZhnfFYxxxu8LG21F6nPQBE5gKV8=
 github.com/shopspring/decimal v1.3.1/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=

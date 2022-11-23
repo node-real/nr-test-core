@@ -18,7 +18,7 @@ var once = sync.Once{}
 type NRBaseSuite struct {
 	suite.Suite
 	nrdriver.TestDriver
-	TestData   map[string][]string
+	TestData   map[string]interface{}
 	ResultData map[string][]string
 	TestName   string
 	mu         sync.Mutex
@@ -36,7 +36,7 @@ func (baseSuite *NRBaseSuite) InitTestTask(funcs ...func()) {
 func (baseSuite *NRBaseSuite) SetupSuite() {
 	log.Infof("=== Setup Test Suite: %s ===", baseSuite.TestName)
 	baseSuite.TestDriver = *nrdriver.Driver()
-	baseSuite.TestData = map[string][]string{}
+	baseSuite.TestData = map[string]interface{}{}
 	baseSuite.ResultData = map[string][]string{}
 }
 

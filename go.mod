@@ -7,7 +7,7 @@ require (
 	github.com/stretchr/testify v1.7.2
 )
 
-replace github.com/stretchr/testify v1.7.2 => github.com/robertw07/testify v0.0.8
+replace github.com/stretchr/testify v1.7.2 => github.com/robertw07/testify v0.0.10
 
 require (
 	github.com/aws/aws-sdk-go v1.44.131

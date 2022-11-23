@@ -18,10 +18,9 @@ func TestDataSuite(t *testing.T) {
 }
 
 func (t *DataSuiteTest) SetupSuite() {
-	t.TestData = map[string][]string{}
-
+	t.NRBaseSuite.SetupSuite()
 	t.TestData["EthTop200"] = []string{
-		"12113241234123",
+		"12113241234123sdfasjdhflkahjsdlfjhalksjhdflajhsldfhjalsjhdflahjsdflhaslkdfhlashdflalshdflahsfdhalsdfhlahsdflj",
 		"abcasdfasdfasd",
 		"13241234123412",
 		"12113241234123",
@@ -29,7 +28,7 @@ func (t *DataSuiteTest) SetupSuite() {
 		"13241234123412",
 		"134123412342314",
 	}
-	t.NRBaseSuite.SetupSuite()
+
 	//t.TestData["Tokens"] = t.DataOperator.ReadFileLines("./data/token.log")
 }
 

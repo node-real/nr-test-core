@@ -32,6 +32,7 @@ func GetSecretValue(secretKey string) string {
 		SecretId: aws.String(secretKey),
 	}
 	result, err := svc.GetSecretValue(input)
+	resultStr := ""
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
@@ -56,5 +57,9 @@ func GetSecretValue(secretKey string) string {
 		return ""
 	}
 
-	return *result.SecretString
+	resultStr = *result.SecretString
+	if resultStr == "" {
+		log.Warn("The secret value is empty.")
+	}
+	return resultStr
 }
