@@ -52,6 +52,10 @@ func (baseSuite *NRBaseSuite) AfterTest(suiteName, testName string) {
 	log.Infof("=== After Test: %s ===", testName)
 }
 
+//func (baseSuite *NRBaseSuite) HandleStats(suiteName string, stats *SuiteInformation) {
+//
+//}
+
 func (baseSuite *NRBaseSuite) AppendResultData(key string, valueItem string) {
 	baseSuite.mu.Lock()
 	if baseSuite.ResultData == nil {
@@ -95,11 +99,12 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 			} else {
 				for k, v := range argMap {
 					targetTagStr := tagInfo.TagMap[k]
-					if targetTagStr == "" {
-						tagInfo.IsSkip = true
-						isSkipSuite = true
-						break
-					} else {
+					//if targetTagStr == "" {
+					//	tagInfo.IsSkip = true
+					//	isSkipSuite = true
+					//	break
+					//} else {
+					if targetTagStr != "" {
 						tagValues := strings.Split(targetTagStr, ",")
 						argValues := strings.Split(v, ",")
 						checker := new(checker.Checker)
@@ -115,6 +120,7 @@ func Run(t *testing.T, testSuite suite.TestingSuite) {
 							isSkipSuite = true
 						}
 					}
+					//}
 				}
 			}
 		} else {

@@ -25,7 +25,7 @@ type Checker struct {
 // For example:
 //
 //	s.Checker.IsContains("abcd", "ab")
-func (checker *Checker) IsContainsInStr(orgStr, subStr string) bool {
+func (c *Checker) IsContainsInStr(orgStr, subStr string) bool {
 	if strings.Contains(orgStr, subStr) {
 		return true
 	}
@@ -234,12 +234,22 @@ func (c *Checker) CheckJsonKVReturnDiffMap(exp, actual string) (bool, map[string
 	return len(diffs0) == 0 && len(diffs1) == 0, diffs0, diffs1
 }
 
-func (Checker *Checker) CheckJsonKVReturnDiffStr(exp, actual string) string {
+func (c *Checker) CheckJsonKVReturnDiffStr(exp, actual string) string {
+	//var json1 map[string]interface{}
+	//var json2 map[string]interface{}
+	//json.Unmarshal([]byte(exp), &json1)
+	//json.Unmarshal([]byte(actual), &json2)
+	//_, diffStr := jsonCompare(json1, json2)
+	//return diffStr
+	return c.CheckJsonKVWithJudgeMethod(exp, actual, nil)
+}
+
+func (c *Checker) CheckJsonKVWithJudgeMethod(exp, actual string, judgeMethod func(value1, value2 interface{}) bool) string {
 	var json1 map[string]interface{}
 	var json2 map[string]interface{}
 	json.Unmarshal([]byte(exp), &json1)
 	json.Unmarshal([]byte(actual), &json2)
-	_, diffStr := jsonCompare(json1, json2)
+	_, diffStr := jsonCompare(json1, json2, judgeMethod)
 	return diffStr
 }
 
@@ -391,7 +401,7 @@ func (c *Checker) DiffJsonReturnDiffStr(jsonStr1 string, jsonStr2 string) string
 	var json2 map[string]interface{}
 	json.Unmarshal([]byte(jsonStr1), &json1)
 	json.Unmarshal([]byte(jsonStr2), &json2)
-	_, diffStr := jsonCompare(json1, json2)
+	_, diffStr := jsonCompare(json1, json2, nil)
 	return diffStr
 }
 
@@ -458,10 +468,10 @@ func (c *Checker) diffJsonListItem(key, jstr0, jstr1 string, diffs map[string][]
 	return diffs
 }
 
-func jsonCompare(left, right map[string]interface{}) (bool, string) {
+func jsonCompare(left, right map[string]interface{}, judgeMethod func(value1, value2 interface{}) bool) (bool, string) {
 	n := -1
 	diff := &JsonDiff{HasDiff: false, Result: ""}
-	jsonDiffDict(left, right, 1, diff)
+	jsonDiffDict(left, right, 1, diff, judgeMethod)
 	if diff.HasDiff {
 		if n < 0 {
 			return !diff.HasDiff, diff.Result
@@ -477,7 +487,7 @@ func marshal(j interface{}) string {
 	return string(value)
 }
 
-func jsonDiffDict(json1, json2 map[string]interface{}, depth int, diff *JsonDiff) {
+func jsonDiffDict(json1, json2 map[string]interface{}, depth int, diff *JsonDiff, judgeMethod func(value1, value2 interface{}) bool) {
 	blank := strings.Repeat(" ", (2 * (depth - 1)))
 	longBlank := strings.Repeat(" ", (2 * (depth)))
 	diff.Result = diff.Result + "\n" + blank + "{"
@@ -492,7 +502,7 @@ func jsonDiffDict(json1, json2 map[string]interface{}, depth int, diff *JsonDiff
 					diff.Result = diff.Result + "\n+" + blank + quotedKey + ": " + marshal(json2[key])
 				} else {
 					diff.Result = diff.Result + "\n" + longBlank + quotedKey + ": "
-					jsonDiffDict(value.(map[string]interface{}), json2[key].(map[string]interface{}), depth+1, diff)
+					jsonDiffDict(value.(map[string]interface{}), json2[key].(map[string]interface{}), depth+1, diff, judgeMethod)
 				}
 			case []interface{}:
 				diff.Result = diff.Result + "\n" + longBlank + quotedKey + ": "
@@ -501,16 +511,25 @@ func jsonDiffDict(json1, json2 map[string]interface{}, depth int, diff *JsonDiff
 					diff.Result = diff.Result + "\n-" + blank + quotedKey + ": " + marshal(value) + ","
 					diff.Result = diff.Result + "\n+" + blank + quotedKey + ": " + marshal(json2[key])
 				} else {
-					jsonDiffList(value.([]interface{}), json2[key].([]interface{}), depth+1, diff)
+					jsonDiffList(value.([]interface{}), json2[key].([]interface{}), depth+1, diff, judgeMethod)
 				}
 			default:
-				if !reflect.DeepEqual(value, json2[key]) {
+				if (judgeMethod != nil && judgeMethod(value, json2[key])) || (judgeMethod == nil && reflect.DeepEqual(value, json2[key])) {
+					diff.Result = diff.Result + "\n" + longBlank + quotedKey + ": " + marshal(value)
+				} else {
 					diff.HasDiff = true
 					diff.Result = diff.Result + "\n-" + blank + quotedKey + ": " + marshal(value) + ","
 					diff.Result = diff.Result + "\n+" + blank + quotedKey + ": " + marshal(json2[key])
-				} else {
-					diff.Result = diff.Result + "\n" + longBlank + quotedKey + ": " + marshal(value)
 				}
+				//} else {
+				//	if !reflect.DeepEqual(value, json2[key]) {
+				//		diff.HasDiff = true
+				//		diff.Result = diff.Result + "\n-" + blank + quotedKey + ": " + marshal(value) + ","
+				//		diff.Result = diff.Result + "\n+" + blank + quotedKey + ": " + marshal(json2[key])
+				//	} else {
+				//		diff.Result = diff.Result + "\n" + longBlank + quotedKey + ": " + marshal(value)
+				//	}
+				//}
 			}
 		} else {
 			diff.HasDiff = true
@@ -527,7 +546,7 @@ func jsonDiffDict(json1, json2 map[string]interface{}, depth int, diff *JsonDiff
 	diff.Result = diff.Result + "\n" + blank + "}"
 }
 
-func jsonDiffList(json1, json2 []interface{}, depth int, diff *JsonDiff) {
+func jsonDiffList(json1, json2 []interface{}, depth int, diff *JsonDiff, judgeMethod func(value1, value2 interface{}) bool) {
 	blank := strings.Repeat(" ", (2 * (depth - 1)))
 	longBlank := strings.Repeat(" ", (2 * (depth)))
 	diff.Result = diff.Result + "\n" + blank + "["
@@ -539,7 +558,7 @@ func jsonDiffList(json1, json2 []interface{}, depth int, diff *JsonDiff) {
 		switch json1[i].(type) {
 		case map[string]interface{}:
 			if _, ok := json2[i].(map[string]interface{}); ok {
-				jsonDiffDict(json1[i].(map[string]interface{}), json2[i].(map[string]interface{}), depth+1, diff)
+				jsonDiffDict(json1[i].(map[string]interface{}), json2[i].(map[string]interface{}), depth+1, diff, judgeMethod)
 			} else {
 				diff.HasDiff = true
 				diff.Result = diff.Result + "\n-" + blank + marshal(json1[i]) + ","
@@ -551,16 +570,21 @@ func jsonDiffList(json1, json2 []interface{}, depth int, diff *JsonDiff) {
 				diff.Result = diff.Result + "\n-" + blank + marshal(json1[i]) + ","
 				diff.Result = diff.Result + "\n+" + blank + marshal(json2[i])
 			} else {
-				jsonDiffList(json1[i].([]interface{}), json2[i].([]interface{}), depth+1, diff)
+				jsonDiffList(json1[i].([]interface{}), json2[i].([]interface{}), depth+1, diff, judgeMethod)
 			}
 		default:
-			if !reflect.DeepEqual(json1[i], json2[i]) {
+			if (judgeMethod != nil && judgeMethod(json1[i], json2[2])) || (judgeMethod == nil && reflect.DeepEqual(json1[i], json2[i])) {
+				diff.Result = diff.Result + "\n" + longBlank + marshal(json1[i])
+			} else {
 				diff.HasDiff = true
 				diff.Result = diff.Result + "\n-" + blank + marshal(json1[i]) + ","
 				diff.Result = diff.Result + "\n+" + blank + marshal(json2[i])
-			} else {
-				diff.Result = diff.Result + "\n" + longBlank + marshal(json1[i])
 			}
+			//if !reflect.DeepEqual(json1[i], json2[i]) {
+			//
+			//} else {
+			//
+			//}
 		}
 		diff.Result = diff.Result + ","
 	}
