@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// Tags:: level:p1
+// Tags:: net:eth
 type TagSuite struct {
 	nrsuite.NRBaseSuite
 }
