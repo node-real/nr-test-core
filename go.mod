@@ -4,10 +4,10 @@ go 1.18
 
 require (
 	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.8.0
 )
 
-replace github.com/stretchr/testify v1.7.2 => github.com/robertw07/testify v0.0.10
+replace github.com/stretchr/testify v1.8.0 => github.com/robertw07/testify v0.0.10
 
 require (
 	github.com/aws/aws-sdk-go v1.44.131
@@ -15,13 +15,13 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.1.1
 	github.com/aws/aws-sdk-go-v2/service/sts v1.1.1
 	github.com/ethereum/go-ethereum v1.10.25
+	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.5.8
 	github.com/gorilla/websocket v1.5.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/cobra v0.0.3
 	github.com/tidwall/gjson v1.14.3
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -42,4 +42,6 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/sys v0.1.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

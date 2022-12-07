@@ -2,9 +2,8 @@ package core
 
 import (
 	"flag"
-	"fmt"
+	"github.com/ghodss/yaml"
 	"github.com/node-real/nr-test-core/src/log"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -89,38 +88,43 @@ func parseConfigYml(ymlName string, runningConfig *RunningConfig) {
 	if err != nil {
 		log.Error("Can not read config yaml file:", path)
 	}
-	configMap := map[string]interface{}{}
-	yaml.Unmarshal(fileContent, &configMap)
-	for k, v := range configMap {
-		if k == "LogLevel" {
-			value := v.(int)
-			runningConfig.LogLevel = value
-		}
-		if k == "TestFilters" {
-			aItem, _ := v.([]interface{})
-			//fmt.Println(a)
-			for _, vItem := range aItem {
-				bItem, _ := vItem.(map[string]interface{})
-				for k1, v1 := range bItem {
-					v1Str := fmt.Sprintf("%v", v1)
-					runningConfig.TestFilters[k1] = v1Str
-				}
-
-			}
-		}
-		if k == "TestParams" {
-			aItem, _ := v.([]interface{})
-			//fmt.Println(a)
-			for _, vItem := range aItem {
-				bItem, _ := vItem.(map[string]interface{})
-				for k1, v1 := range bItem {
-					v1Str := fmt.Sprintf("%v", v1)
-					runningConfig.TestParams[k1] = v1Str
-				}
-
-			}
-		}
+	err = yaml.Unmarshal(fileContent, runningConfig)
+	if err != nil {
+		log.Error("Parse config file to RunningConfig failed", err.Error())
 	}
+	//configMap := map[string]interface{}{}
+	//runningConfig1 := new(RunningConfig1)
+	//yaml.Unmarshal(fileContent, runningConfig1)
+
+	//yaml.Unmarshal(fileContent, &configMap)
+	//for k, v := range configMap {
+	//	if k == "LogLevel" {
+	//		value := v.(int)
+	//		runningConfig.LogLevel = value
+	//	}
+	//	if k == "TestFilters" {
+	//		aItem, _ := v.([]interface{})
+	//		for _, vItem := range aItem {
+	//			bItem, _ := vItem.(map[string]interface{})
+	//			for k1, v1 := range bItem {
+	//				v1Str := fmt.Sprintf("%v", v1)
+	//				runningConfig.TestFilters[k1] = v1Str
+	//			}
+	//		}
+	//	}
+	//	if k == "TestParams" {
+	//		aItem, _ := v.([]interface{})
+	//		//fmt.Println(a)
+	//		for _, vItem := range aItem {
+	//			bItem, _ := vItem.(map[string]interface{})
+	//			for k1, v1 := range bItem {
+	//				v1Str := fmt.Sprintf("%v", v1)
+	//				runningConfig.TestParams[k1] = v1Str
+	//			}
+	//
+	//		}
+	//	}
+	//}
 }
 
 func getParentDirectory(dir string) string {
