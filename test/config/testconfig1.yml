@@ -14,8 +14,8 @@ TestParams:
   ExpectArchiveRpcUrl:
   WBNB: xxxxx
   Router: xxxxx
-  NrGetTransactionByAddressCountSuiteBlockNo: 0x1397004
-  NrGetTransactionByAddressCountSuiteBlockNoNew: 0x13970e4
+  NrGetTransactionByAddressCountSuiteBlockNo: "0x1397004"
+  NrGetTransactionByAddressCountSuiteBlockNoNew: "0x13970e4"
   NrGetTransactionByAddressCountSuiteFromAddress: 0xd5e20f05071e4b88bbc136f6e7a18ff8fb48da39
   NrGetTransactionByAddressCountSuiteToAddress: 0xc6020442f0638bd0cc1509e92d34c19c5b2084ea
   NrGetTransactionByAddressCountSuiteContractAddress: 0x3ee2200efb3400fabb9aacf31297cbdd1d435d47

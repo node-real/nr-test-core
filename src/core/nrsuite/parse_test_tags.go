@@ -88,14 +88,24 @@ func parseTagInfo(targetSuite string, tagInfos []TagInfo, filePath string) []Tag
 				} else if strings.HasPrefix(testNameLine, "func") {
 					compileRegex := regexp.MustCompile("\\)(.*?)\\(")
 					matchArr := compileRegex.FindStringSubmatch(testNameLine)
-					methodName := matchArr[len(matchArr)-1]
+					var methodName string
+					if matchArr != nil && len(matchArr) > 0 {
+						methodName = matchArr[len(matchArr)-1]
+					} else {
+						break
+					}
 
 					suiteRegex := regexp.MustCompile("\\*(.*?)\\)")
 					matchArr1 := suiteRegex.FindStringSubmatch(testNameLine)
-					suiteName := matchArr1[len(matchArr1)-1]
+					var suiteName string
+					if matchArr1 != nil && len(matchArr1) > 0 {
+						suiteName = matchArr1[len(matchArr1)-1]
+					} else {
+						break
+					}
 
 					methodName = strings.Trim(methodName, " ")
-					if strings.HasPrefix(methodName, "Test") && suiteName == targetSuite {
+					if methodName != "" && strings.HasPrefix(methodName, "Test") && suiteName == targetSuite {
 						tagInfo.MethodName = methodName
 						tagInfo.SuiteName = suiteName
 						tagInfo.IsSuite = false

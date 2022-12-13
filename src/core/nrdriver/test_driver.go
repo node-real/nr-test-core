@@ -1,6 +1,7 @@
 package nrdriver
 
 import (
+	"fmt"
 	"github.com/node-real/nr-test-core/src/awswrapper"
 	"github.com/node-real/nr-test-core/src/checker"
 	"github.com/node-real/nr-test-core/src/core"
@@ -66,4 +67,20 @@ func Driver() *TestDriver {
 		driver.Log = log.Log
 	})
 	return &driver
+}
+
+func (t *TestDriver) RunFunWithRetry(f func() error, retryCount int) {
+	for i := 0; i < retryCount; i++ {
+		func() {
+			defer func() {
+				if err := recover(); err != nil {
+					fmt.Println("panic error:", err)
+				}
+			}()
+			err := f()
+			if err == nil {
+				return
+			}
+		}()
+	}
 }
