@@ -5,6 +5,7 @@ import (
 	"github.com/node-real/nr-test-core/src/invokers/http"
 	"github.com/node-real/nr-test-core/src/invokers/rpc"
 	"github.com/node-real/nr-test-core/src/log"
+	"github.com/node-real/nr-test-core/src/utils"
 	"time"
 )
 
@@ -208,7 +209,8 @@ func (wss *WssInvoker) GetMsg(host string, msg *rpc.RpcMessage, count int) ([]st
 
 	defer webClient.Close()
 
-	err = webClient.WriteJSON(msg)
+	//err = webClient.WriteJSON(msg)
+	err = writeJSONWithRetry(webClient, msg, 1)
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -218,7 +220,38 @@ func (wss *WssInvoker) GetMsg(host string, msg *rpc.RpcMessage, count int) ([]st
 	interval := 30 * time.Second
 	err = webClient.SetReadDeadline(time.Now().Add(interval))
 	for i := 0; i < count; i++ {
-		_, message, err := webClient.ReadMessage()
+		message, err := readMessageWithRetry(webClient, 1)
+		if err != nil {
+			log.Error("read:", err)
+			return result, err
+		}
+		log.Debugf("Received: %s.\n", message)
+		result = append(result, string(message))
+
+	}
+	return result, err
+}
+
+func (wss *WssInvoker) GetMsgWithRetry(host string, msg *rpc.RpcMessage, count int, retryCount int) ([]string, error) {
+	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
+	if err != nil {
+		log.Fatal("dial:", err)
+	}
+
+	defer webClient.Close()
+
+	//err = webClient.WriteJSON(msg)
+	err = writeJSONWithRetry(webClient, msg, retryCount)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	result := []string{}
+
+	interval := 30 * time.Second
+	err = webClient.SetReadDeadline(time.Now().Add(interval))
+	for i := 0; i < count; i++ {
+		message, err := readMessageWithRetry(webClient, retryCount)
 		if err != nil {
 			log.Error("read:", err)
 			return result, err
@@ -258,4 +291,20 @@ func (wss *WssInvoker) GetMsgWithTimeout(host string, msg *rpc.RpcMessage, count
 
 	}
 	return result, err
+}
+
+func writeJSONWithRetry(webClient *websocket.Conn, msg *rpc.RpcMessage, retryCount int) error {
+	return utils.RunFunWithRetry(func() error {
+		return webClient.WriteJSON(msg)
+	}, retryCount)
+}
+
+func readMessageWithRetry(webClient *websocket.Conn, retryCount int) ([]byte, error) {
+	var p []byte
+	return p, utils.RunFunWithRetry(func() error {
+		var err error
+		_, p, err = webClient.ReadMessage()
+		return err
+	}, retryCount)
+
 }
