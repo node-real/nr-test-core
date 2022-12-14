@@ -2,10 +2,12 @@ package checker
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/google/go-cmp/cmp"
 	"github.com/node-real/nr-test-core/src/invokers/http"
+	"github.com/node-real/nr-test-core/src/invokers/rpc"
 	"github.com/node-real/nr-test-core/src/log"
 	"github.com/tidwall/gjson"
 	http1 "net/http"
@@ -372,6 +374,20 @@ func (c *Checker) CheckTowHeaderValueContain(exp, actual http1.Header) (bool, ma
 		result = false
 	}
 	return result, diffs0
+}
+
+func (c *Checker) CheckRPCErr(res *http.Response) error {
+	if !strings.Contains(res.Body, "\"result\":") {
+		log.Debugf("response: [rt: %d ms], %s",
+			res.Time, res.Body)
+	} else {
+		var rpcErr rpc.RpcMessage
+		json.Unmarshal([]byte(res.Body), &rpcErr)
+		msg := fmt.Sprintf("%d: %s",
+			rpcErr.Error.Code, rpcErr.Error.Message)
+		return errors.New(msg)
+	}
+	return nil
 }
 
 func (c *Checker) CheckTowMapValueContain(exp, actual map[string]interface{}) (bool, map[string]interface{}) {
