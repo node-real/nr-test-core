@@ -67,7 +67,7 @@ func removeZeroAtTail(str string) string {
 func ToIntByUint16(num uint16) *big.Int {
 	return big.NewInt(int64(num))
 }
-func ToIntByPrecise(str string, precise uint64) *big.Int {
+func (m *MathUtils) StrToIntWithPrecise(str string, precise uint64) *big.Int {
 	result := new(big.Int)
 	splits := strings.Split(str, ".")
 	if len(splits) == 1 { // doesn't contain "."
@@ -103,32 +103,32 @@ func ToIntByPrecise(str string, precise uint64) *big.Int {
 	return result
 }
 
-func Div(x *big.Int, y *big.Int) *big.Int {
+func (m *MathUtils) Div(x *big.Int, y *big.Int) *big.Int {
 	return big.NewInt(0).Div(x, y)
 }
-func Mul(x *big.Int, y *big.Int) *big.Int {
+func (m *MathUtils) Mul(x *big.Int, y *big.Int) *big.Int {
 	return big.NewInt(0).Mul(x, y)
 }
-func Sub(x *big.Int, y *big.Int) *big.Int {
+func (m *MathUtils) Sub(x *big.Int, y *big.Int) *big.Int {
 	return big.NewInt(0).Sub(x, y)
 }
-func Add(x *big.Int, y *big.Int) *big.Int {
+func (m *MathUtils) Add(x *big.Int, y *big.Int) *big.Int {
 	return big.NewInt(0).Add(x, y)
 }
 
-func GetExpUtilization(borrow, cash, reserves *big.Int) *big.Int {
-	x := Sub(Add(borrow, cash), reserves)
-	y := Mul(borrow, ToIntByPrecise("1", 18))
-	return Div(y, x)
+func (m *MathUtils) GetExpUtilization(borrow, cash, reserves *big.Int) *big.Int {
+	x := m.Sub(m.Add(borrow, cash), reserves)
+	y := m.Mul(borrow, m.StrToIntWithPrecise("1", 18))
+	return m.Div(y, x)
 }
-func CalBorrowRate(utils, kink, jump, normal, base float64) float64 {
+func (m *MathUtils) CalBorrowRate(utils, kink, jump, normal, base float64) float64 {
 	if utils <= kink {
 		return utils*normal + base
 	} else {
 		return kink*normal + base + (utils-kink)*jump
 	}
 }
-func Div2float(x *big.Int, y *big.Int) *big.Float {
+func (m *MathUtils) Div2float(x *big.Int, y *big.Int) *big.Float {
 	if x.Cmp(big.NewInt(0)) == 0 || y.Cmp(big.NewInt(0)) == 0 {
 		return big.NewFloat(1)
 	}
