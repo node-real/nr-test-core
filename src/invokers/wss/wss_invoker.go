@@ -204,7 +204,8 @@ func (wss *WssInvoker) SendParallelWithBatch(host string, req []*rpc.RpcMessage,
 func (wss *WssInvoker) GetMsg(host string, msg *rpc.RpcMessage, count int) ([]string, error) {
 	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
 	if err != nil {
-		log.Fatal("dial:", err)
+		log.Fatal("wss dial failed:", err)
+		return nil, err
 	}
 
 	defer webClient.Close()
@@ -233,14 +234,14 @@ func (wss *WssInvoker) GetMsg(host string, msg *rpc.RpcMessage, count int) ([]st
 }
 
 func (wss *WssInvoker) GetMsgWithRetry(host string, msg *rpc.RpcMessage, count int, retryCount int) ([]string, error) {
-	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
+	webClient, err := wss.newClientWithRetry(host, retryCount)
 	if err != nil {
-		log.Fatal("dial:", err)
+		log.Fatal("wss dial failed:", err)
+		return nil, err
 	}
 
 	defer webClient.Close()
 
-	//err = webClient.WriteJSON(msg)
 	err = writeJSONWithRetry(webClient, msg, retryCount)
 	if err != nil {
 		log.Error(err)
@@ -266,7 +267,8 @@ func (wss *WssInvoker) GetMsgWithRetry(host string, msg *rpc.RpcMessage, count i
 func (wss *WssInvoker) GetMsgWithTimeout(host string, msg *rpc.RpcMessage, count int, timeout int) ([]string, error) {
 	webClient, _, err := websocket.DefaultDialer.Dial(host, nil)
 	if err != nil {
-		log.Fatal("GetIntervalWsMsg.dial:", err)
+		log.Fatal("dial failed:", err)
+		return nil, err
 	}
 
 	defer webClient.Close()
@@ -291,6 +293,15 @@ func (wss *WssInvoker) GetMsgWithTimeout(host string, msg *rpc.RpcMessage, count
 
 	}
 	return result, err
+}
+
+func (wss *WssInvoker) newClientWithRetry(host string, retryCount int) (*websocket.Conn, error) {
+	var webClient *websocket.Conn
+	return webClient, utils.RunFunWithRetry(func() error {
+		var err error
+		webClient, _, err = websocket.DefaultDialer.Dial(host, nil)
+		return err
+	}, retryCount)
 }
 
 func writeJSONWithRetry(webClient *websocket.Conn, msg *rpc.RpcMessage, retryCount int) error {

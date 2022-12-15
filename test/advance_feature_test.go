@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"github.com/node-real/nr-test-core/src/core/nrsuite"
+	"math/rand"
 	"testing"
 )
 
@@ -17,7 +18,11 @@ func TestAdvanceSuite(t *testing.T) {
 func (t *AdvanceSuiteTest) Test_1() {
 	t.RunFunWithRetry(func() error {
 		a := []int{}
-		fmt.Println(a[1])
+		b := rand.Intn(15)
+		fmt.Println(b)
+		if b > 3 {
+			fmt.Println(a[1])
+		}
 		return nil
 	}, 4)
 }
