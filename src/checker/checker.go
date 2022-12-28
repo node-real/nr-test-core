@@ -191,6 +191,32 @@ func (c *Checker) CheckJsonKey(exp, actual string) bool {
 	return result
 }
 
+func (c *Checker) CheckJsonKeyNoLog(exp, actual string) bool {
+	diffs0 := map[string][]interface{}{}
+	diffs1 := map[string][]interface{}{}
+
+	json0 := gjson.Parse(exp)
+	if json0.IsArray() {
+		diffs0 = c.diffJsonListItem("root", exp, actual, diffs0)
+		diffs1 = c.diffJsonListItem("root", actual, exp, diffs1)
+	} else if json0.IsObject() {
+		diffs0 = c.diffJson(exp, actual, diffs0)
+		diffs1 = c.diffJson(actual, exp, diffs1)
+	}
+	result := true
+	for k0, _ := range diffs0 {
+		if _, value := diffs1[k0]; !value {
+			result = false
+		}
+	}
+	for k0, _ := range diffs1 {
+		if _, value := diffs0[k0]; !value {
+			result = false
+		}
+	}
+	return result
+}
+
 // CheckJsonValue check json key and value
 func (c *Checker) CheckJsonValue(exp, actual string) bool {
 	if exp == "" || actual == "" {
@@ -214,6 +240,24 @@ func (c *Checker) CheckJsonValue(exp, actual string) bool {
 	for k0, v0 := range diffs1 {
 		log.Errorf("diffs1: %s", k0)
 		log.Errorf("diffs1: %v", v0)
+	}
+	return len(diffs0) == 0 && len(diffs1) == 0
+}
+
+func (c *Checker) CheckJsonValueNoLog(exp, actual string) bool {
+	if exp == "" || actual == "" {
+		log.Error("exp or actual if nil")
+		return false
+	}
+	diffs0 := map[string][]interface{}{}
+	diffs1 := map[string][]interface{}{}
+	json0 := gjson.Parse(exp)
+	if json0.IsArray() {
+		diffs0 = c.diffJsonListItem("root", exp, actual, diffs0)
+		diffs1 = c.diffJsonListItem("root", actual, exp, diffs1)
+	} else if json0.IsObject() {
+		diffs0 = c.diffJson(exp, actual, diffs0)
+		diffs1 = c.diffJson(actual, exp, diffs1)
 	}
 	return len(diffs0) == 0 && len(diffs1) == 0
 }
