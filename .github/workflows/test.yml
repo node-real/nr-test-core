@@ -1,0 +1,51 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  repository_dispatch:
+    types: [on-demand-test]
+#   push:
+#     branches: [ "main" ]
+#   pull_request:
+#     branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: [self-hosted,qa-infra-k8s]
+    steps:
+    - name: check
+      id: static-check
+      run: |
+        echo "********************************"
+        echo ${{ github.event.client_payload.application }}
+        curl https://bsc-trace.fe.nodereal.cc/
+        echo "********************************"
+    - name: Dump GitHub context
+      id: github_context_step
+      run: echo '${{ toJSON(github) }}'
+    - name: Dump job context
+      run: echo '${{ toJSON(job) }}'
+           echo '${{ job.id }}'
+    - name: Dump steps context
+      run: echo '${{ toJSON(steps) }}'
+    - name: Dump runner context
+      run: echo '${{ toJSON(runner) }}'
+    - name: Dump strategy context
+      run: echo '${{ toJSON(strategy) }}'
+    - name: Dump matrix context
+      run: echo '${{ toJSON(matrix) }}'
+#     - uses: actions/checkout@v3
+
+#     - name: Set up Go
+#       uses: actions/setup-go@v3
+#       with:
+#         go-version: 1.19
+
+#     - name: Build
+#       run: go build -v ./...
+
+#     - name: Test
+#       run: go test -v ./...
