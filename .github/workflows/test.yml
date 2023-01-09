@@ -6,6 +6,14 @@ name: Go
 on:
   repository_dispatch:
     types: [on-demand-test]
+  workflow_dispatch:
+    inputs:
+      envname:
+        default: 'test.yml'
+
+
+  
+  
 #   push:
 #     branches: [ "main" ]
 #   pull_request:
