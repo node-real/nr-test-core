@@ -123,9 +123,9 @@ type (
 )
 
 func main() {
-	fmt.Println("&&&&&&&&&", os.Args)
-	//for local debug
-	utils.SetIsLocal(false)
+	//fmt.Println("&&&&&&&&&", os.Args)
+	////for local debug
+	//utils.SetIsLocal(false)
 
 	rootCmd, _, _ := initRootCommand()
 	if err := rootCmd.Execute(); err != nil {
