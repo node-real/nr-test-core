@@ -43,9 +43,9 @@ func UploadFileToS3(fileName string, s3Key string) {
 		Body:   file,
 	})
 
-	if err == nil {
-		log.Errorf("Failed upload report file '%s' to s3.", fileName)
+	if err != nil {
+		log.Errorf("Failed upload file '%s' to s3.", fileName, err)
 	} else {
-		log.Error("Succeed to upload test report.")
+		log.Info("Succeed to upload file to s3.")
 	}
 }
