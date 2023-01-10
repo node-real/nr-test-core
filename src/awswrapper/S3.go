@@ -4,7 +4,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	_ "github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/node-real/nr-test-core/src/log"
@@ -26,11 +25,6 @@ func getSession() *session.Session {
 	return sess
 }
 
-func getS3Client() *s3.S3 {
-	s3Client := s3.New(getSession())
-	return s3Client
-}
-
 func UploadFileToS3(fileName string, s3Key string) {
 	file, err := os.Open(fileName)
 	if err == nil {
@@ -39,7 +33,7 @@ func UploadFileToS3(fileName string, s3Key string) {
 	uploader := s3manager.NewUploader(getSession())
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(bucketName),
-		Key:    aws.String(fileName),
+		Key:    aws.String(s3Key),
 		Body:   file,
 	})
 
