@@ -1,16 +1,23 @@
 package nrsuite
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/node-real/nr-test-core/src/awswrapper"
 	"github.com/node-real/nr-test-core/src/checker"
 	"github.com/node-real/nr-test-core/src/core"
 	"github.com/node-real/nr-test-core/src/core/nrdriver"
 	"github.com/node-real/nr-test-core/src/log"
+	"github.com/node-real/nr-test-core/src/utils"
 	"github.com/stretchr/testify/suite"
+	"os"
+	"os/exec"
 	"reflect"
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
+	"time"
 )
 
 var once = sync.Once{}
@@ -27,10 +34,63 @@ type NRBaseSuite struct {
 // InitTestTask initialize the test at the start of the test task
 func (baseSuite *NRBaseSuite) InitTestTask(funcs ...func()) {
 	once.Do(func() {
-		for _, currFunc := range funcs {
-			currFunc()
+		if funcs != nil {
+			for _, currFunc := range funcs {
+				currFunc()
+			}
 		}
+
+		go generateResult()
 	})
+}
+
+// if running on local, will generate a html report
+// if running on github, will generate a result.json and upload it to S3
+func generateResult() {
+	var reportMainFile string
+	for m := 0; m < 5; m++ {
+		_, filePath, _, r := runtime.Caller(m)
+		if !r || strings.Contains(filePath, "nr-test-core") {
+			dirs := strings.Split(filePath, "/src/")
+			if len(dirs) >= 1 {
+				dir := dirs[0]
+				reportMainFile = fmt.Sprintf("%s/src/report/main/main.go", dir)
+			}
+			break
+		}
+	}
+
+	workPath, _ := os.Getwd()
+	tempJsonFile := fmt.Sprintf("%s/result.json", workPath)
+	cmd := exec.Command("go", "run", reportMainFile, "-r", tempJsonFile)
+	stdout, err := cmd.Output()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	// Print the output
+	fmt.Println(string(stdout))
+
+	if !utils.IsLocal() {
+		awswrapper.UploadFileToS3(tempJsonFile, buildS3KeyName())
+	}
+}
+func buildS3KeyName() string {
+	githubContext := os.Getenv("github_context")
+	var s3Key string
+	if githubContext != "" {
+		contextMap := map[string]string{}
+		json.Unmarshal([]byte(githubContext), &contextMap)
+		repoName := contextMap["repoName"]
+		workflow := contextMap["workflow"]
+		runId := contextMap["run_id"]
+		jobName := contextMap["job"]
+		s3Key = fmt.Sprintf("%s/%s/%s/%s.json", repoName, workflow, runId, jobName)
+	} else {
+		s3Key = fmt.Sprintf("nodereal/tmp_report/%s.json", time.Now())
+	}
+	return s3Key
 }
 
 func (baseSuite *NRBaseSuite) SetupSuite() {
@@ -38,6 +98,7 @@ func (baseSuite *NRBaseSuite) SetupSuite() {
 	baseSuite.TestDriver = *nrdriver.Driver()
 	baseSuite.TestData = map[string]interface{}{}
 	baseSuite.ResultData = map[string][]string{}
+	baseSuite.InitTestTask()
 }
 
 func (baseSuite *NRBaseSuite) TearDownSuite() {
@@ -51,10 +112,6 @@ func (baseSuite *NRBaseSuite) BeforeTest(suiteName, testName string) {
 func (baseSuite *NRBaseSuite) AfterTest(suiteName, testName string) {
 	log.Infof("=== After Test: %s ===", testName)
 }
-
-//func (baseSuite *NRBaseSuite) HandleStats(suiteName string, stats *SuiteInformation) {
-//
-//}
 
 func (baseSuite *NRBaseSuite) AppendResultData(key string, valueItem string) {
 	baseSuite.mu.Lock()

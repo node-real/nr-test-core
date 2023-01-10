@@ -4,12 +4,23 @@ import (
 	"errors"
 	"fmt"
 	"github.com/node-real/nr-test-core/src/log"
+	"runtime"
 )
 
 type Utils struct {
 	MathUtils
 	FileUtils
 	StringUtils
+}
+
+var isLocal = runtime.GOOS == "darwin"
+
+func IsLocal() bool {
+	return isLocal
+}
+
+func SetIsLocal(v bool) {
+	isLocal = v
 }
 
 func RunFunWithRetry(f func() error, retryCount int) error {

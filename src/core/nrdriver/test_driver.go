@@ -54,7 +54,7 @@ func Driver() *TestDriver {
 		driver.Checker = &checker.Checker{}
 		driver.Utils = &utils.Utils{}
 		driver.Region = awswrapper.GetAwsRegion()
-		driver.IsLocal = awswrapper.IsLocal()
+		driver.IsLocal = utils.IsLocal()
 		core.InitConfig()
 		driver.RunningConfig = core.Config
 		initDriver()

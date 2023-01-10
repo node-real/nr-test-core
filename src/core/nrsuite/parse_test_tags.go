@@ -146,6 +146,7 @@ func parseTagToCaseInfo(tag TagInfo) *suite.CaseInfo {
 	if tagMap != nil {
 		caseInfo.DataKey = tagMap["$RunDataKey"]
 		parallelCount := tagMap["$ParallelCount"]
+		//retryCount := tagMap["$RetryCount"]
 		if parallelCount != "" {
 			count, err := util.ConvertStrToInt(parallelCount)
 			if err != nil {
@@ -154,6 +155,14 @@ func parseTagToCaseInfo(tag TagInfo) *suite.CaseInfo {
 				caseInfo.ParallelCount = count
 			}
 		}
+		//if retryCount != "" {
+		//	count, err := util.ConvertStrToInt(retryCount)
+		//	if err != nil {
+		//		caseInfo.ParallelCount = 1
+		//	} else {
+		//		caseInf
+		//	}
+		//}
 	}
 	return &caseInfo
 }

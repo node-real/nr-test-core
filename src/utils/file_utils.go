@@ -32,10 +32,11 @@ func (utils *FileUtils) WriteFileWithLines(dataItems []string, filePath string) 
 	var file *os.File
 	var err1 error
 	if utils.CheckFileIsExist(filePath) {
-		file, err1 = os.OpenFile(filePath, os.O_APPEND, 0666)
-	} else {
-		file, err1 = os.Create(filePath)
+		os.Remove(filePath)
+		//	file, err1 = os.OpenFile(filePath, os.O_APPEND, 0666)
+		//} else {
 	}
+	file, err1 = os.Create(filePath)
 	for _, item := range dataItems {
 		file.WriteString(item)
 		file.WriteString("\n")
